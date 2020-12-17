@@ -14,7 +14,14 @@ const GLchar* fragmentShaderSource = "#version 330 core\n"
 "color = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
 "}\n\0";
 
-CreateScene::CreateScene() {
+CreateScene::CreateScene() : 
+		window(nullptr),
+		vao(0),
+		vbo(0),
+		shaderProgram(0),
+		glcontext(0), 
+		fragmentShader(0),
+		vertexShader(0) {
 
 }
 
@@ -164,7 +171,7 @@ GLuint CreateScene::LoadShader(string vertex_path, string fragment_path) {
 		char* log = new char[logLen];
 		glGetShaderInfoLog(vertexShader, logLen, NULL, log);
 		cout << log << endl;
-		delete log;
+		delete [] log;
 		return -1;
 	}
 	//компил¤ци¤ фрагментного шейдера
@@ -181,7 +188,7 @@ GLuint CreateScene::LoadShader(string vertex_path, string fragment_path) {
 		char* log = new char[logLen];
 		glGetShaderInfoLog(fragmentShader, logLen, NULL, log);
 		cout << log << endl;
-		delete log;
+		delete [] log;
 		return -1;
 	}
 	return 0;
