@@ -13,8 +13,7 @@
 
 using namespace std;
 
-class CreateScene
-{
+class CreateScene {
 private:
 	SDL_Window* window;
 	SDL_GLContext glcontext;
@@ -33,6 +32,7 @@ public:
 	~CreateScene();
 
 	bool Init();
+	bool InitGLEW();
 	bool InitVAO();
 	bool InitVBO();
 

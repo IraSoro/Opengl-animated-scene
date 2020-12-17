@@ -23,7 +23,7 @@ CreateScene::~CreateScene() {
 }
 
 void CreateScene::Start() {
-	if (Init() && InitVAO() && InitVBO()) {
+	if (Init() && InitGLEW() && InitVAO() && InitVBO()) {
 		MainLoop();
 	}
 	return;
@@ -108,6 +108,14 @@ bool CreateScene::Init() {
 	gluPerspective(45.0f, (float)width / (float)height, 0.1f, 100.0f); // настраиваем трехмерную перспективу
 	glMatrixMode(GL_MODELVIEW); // переходим в трехмерный режим
 
+	return true;
+}
+
+bool CreateScene::InitGLEW() {
+	glewExperimental = true;
+	if (glewInit() != GLEW_OK) {
+		return false;
+	}
 	return true;
 }
 
