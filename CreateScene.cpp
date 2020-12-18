@@ -1,27 +1,14 @@
 #pragma comment(lib, "glew32.lib")
 #include "CreateScene.h"
 
-const GLchar* vertexShaderSource = "#version 330 core\n"
-"layout (location = 0) in vec3 position;\n"
-"void main()\n"
-"{\n"
-"gl_Position = vec4(position.x, position.y, position.z, 1.0);\n"
-"}\0";
-const GLchar* fragmentShaderSource = "#version 330 core\n"
-"out vec4 color;\n"
-"void main()\n"
-"{\n"
-"color = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-"}\n\0";
-
 CreateScene::CreateScene() : 
 		window(nullptr),
 		vao(0),
 		vbo(0),
-		shaderProgram(0),
-		glcontext(0), 
-		fragmentShader(0),
-		vertexShader(0) {
+		ebo(0),
+		texture1(0),
+		texture2(0),
+		glcontext(0){
 
 }
 
@@ -30,26 +17,36 @@ CreateScene::~CreateScene() {
 }
 
 void CreateScene::Start() {
-	if (Init() && InitGLEW() && InitVAO() && InitVBO()) {
+	if (Init() && InitGLEW()) {
+
 		MainLoop();
+
+		Close();
 	}
 	return;
 }
 
 GLfloat vertices[] = {
-	-0.5f, -0.5f, 0.0f, // Left  
-	 0.5f, -0.5f, 0.0f, // Right 
-	 0.0f,  0.5f, 0.0f  // Top   
+	// Positions          // Colors           // Texture Coords
+	 0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // Top Right
+	 0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // Bottom Right
+	-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // Bottom Left
+	-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // Top Left 
+};
+GLuint indices[] = {  // Note that we start from 0!
+	0, 1, 3, // First Triangle
+	1, 2, 3  // Second Triangle
 };
 
 void CreateScene::MainLoop() {
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-	glCompileShader(vertexShader);
+	Shader ourShader(vertexPath, fragmentPath);
 
+	WorkAttr();
+	
+	WorkTexture(texture1, "awesomeface.png");
+	WorkTexture(texture2, "container.jpg");
 
 	bool running = true;
-
 	while (running) {
 		SDL_Event event;
 
@@ -65,6 +62,7 @@ void CreateScene::MainLoop() {
 					running = false;
 					break;
 				case SDLK_LEFT:
+					cout << "left" << endl;
 					break;
 				case SDLK_RIGHT:
 					break;
@@ -72,13 +70,23 @@ void CreateScene::MainLoop() {
 				break;
 			}
 		}
-
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+		
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture1);
+		glUniform1i(glGetUniformLocation(ourShader.Program, "ourTexture1"), 0);
 
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, texture2);
+		glUniform1i(glGetUniformLocation(ourShader.Program, "ourTexture2"), 1);
+		
+		ourShader.Use();
+		glBindVertexArray(vao);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
 
-		// обновл¤ем экран
-		glFlush();
+		// обновляем экран
 		SDL_GL_SwapWindow(window);
 	}
 
@@ -105,16 +113,6 @@ bool CreateScene::Init() {
 		return false;
 	}
 
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	glClearDepth(1.0);
-	glDepthFunc(GL_LESS);
-	glEnable(GL_DEPTH_TEST);
-	glShadeModel(GL_SMOOTH);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(45.0f, (float)width / (float)height, 0.1f, 100.0f); // настраиваем трехмерную перспективу
-	glMatrixMode(GL_MODELVIEW); // переходим в трехмерный режим
-
 	return true;
 }
 
@@ -123,18 +121,6 @@ bool CreateScene::InitGLEW() {
 	if (glewInit() != GLEW_OK) {
 		return false;
 	}
-	return true;
-}
-
-bool CreateScene::InitVBO() {
-	glGenBuffers(1, &vbo);
-	if (vbo == 1) printf("VBO = %u\n", vbo);
-	else {
-		cout << "glGenBuffers Error: VBO = ";
-		printf("%u\n", vbo);
-		return false;
-	}
-
 	return true;
 }
 
@@ -150,85 +136,81 @@ bool CreateScene::InitVAO() {
 	return true;
 }
 
-GLuint CreateScene::LoadShader(string vertex_path, string fragment_path) {
-	string vertexStr = ReadFile(vertex_path);
-	string fragmentStr = ReadFile(fragment_path);
-	const GLchar* vertShaderSrc = vertexStr.c_str();
-	const GLchar* fragShaderSrc = fragmentStr.c_str();
-
-	//компил¤ци¤ вершинного шейдера
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertShaderSrc, NULL);
-	glCompileShader(vertexShader);
-	//проверка компил¤ции шейдера
-	GLint status;
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &status);
-	if (status == GL_TRUE) cout << "vertexShader success compile" << endl;
+bool CreateScene::InitVBO() {
+	glGenBuffers(1, &vbo);
+	if (vbo == 1) printf("VBO = %u\n", vbo);
 	else {
-		cout << "vertexShader compile error " << status << endl;
-		int logLen = 0;
-		glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &logLen);
-		char* log = new char[logLen];
-		glGetShaderInfoLog(vertexShader, logLen, NULL, log);
-		cout << log << endl;
-		delete [] log;
-		return -1;
+		cout << "glGenBuffers Error: VBO = ";
+		printf("%u\n", vbo);
+		return false;
 	}
-	//компил¤ци¤ фрагментного шейдера
-	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragShaderSrc, NULL);
-	glCompileShader(fragmentShader);
 
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &status);
-	if (status == GL_TRUE) cout << "fragmentShader success compile" << endl;
+	return true;
+}
+
+bool CreateScene::InitEBO() {
+	glGenBuffers(1, &ebo);
+	if (vbo == 1) printf("EBO = %u\n", vbo);
 	else {
-		cout << "fragmentShader compile error " << status << endl;
-		int logLen = 0;
-		glGetShaderiv(fragmentShader, GL_INFO_LOG_LENGTH, &logLen);
-		char* log = new char[logLen];
-		glGetShaderInfoLog(fragmentShader, logLen, NULL, log);
-		cout << log << endl;
-		delete [] log;
-		return -1;
+		cout << "glGenBuffers Error: EBO = ";
+		printf("%u\n", vbo);
+		return false;
 	}
-	return 0;
+
+	return true;
 }
 
-string CreateScene::ReadFile(string path) {
-	string content;
-	ifstream file(path);
-	if (!file.is_open()) return "";
-	string line = "";
-	while (getline(file, line)) {
-		content += line + '\n';
-	}
-	file.close();
-	return content;
+void CreateScene::WorkAttr() {
+	if (!InitVAO() || !InitVBO() || !InitEBO())
+		return;
+
+	glBindVertexArray(vao);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	// Position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
+	glEnableVertexAttribArray(0);
+	// Color attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(1);
+	// TexCoord attribute
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(2);
+
+	glBindVertexArray(0); // Unbind VAO
+	return;
 }
 
-void CreateScene::CreateShaderProgram() {
-	//создание программы-шейдера
-	shaderProgram = glCreateProgram();
-	//прикрепление шейдеров к программе
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
+void CreateScene::WorkTexture(GLuint &texture, const GLchar* name) {
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture); 
+	// Set our texture parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	// Set texture filtering
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// Load, create texture and generate mipmaps
+	int width, height;
+	unsigned char* image = SOIL_load_image(name, &width, &height, 0, SOIL_LOAD_RGB);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	SOIL_free_image_data(image);
+	glBindTexture(GL_TEXTURE_2D, 0);
 
-	glLinkProgram(shaderProgram);
-	//glUseProgram(shaderProgram);
-}
-
-void CreateScene::OutShader() {
-	//открепление шейдеров
-	glDetachShader(shaderProgram, vertexShader);
-	glDetachShader(shaderProgram, fragmentShader);
-
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
-
-	glDeleteProgram(shaderProgram);
+	return;
 }
 
 void CreateScene::Close() {
+	glDeleteVertexArrays(1, &vao);
+	glDeleteBuffers(1, &vbo);
+	glDeleteBuffers(1, &ebo);
+
 	printf("%s\n", glGetString(GL_VERSION));
 	SDL_DestroyWindow(window);
 	window = nullptr;

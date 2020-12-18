@@ -10,6 +10,9 @@
 #include <SDL.h>
 #include <GL/glew.h>
 #include <GL/GLU.h>
+#include <SOIL2.h>
+
+#include "Shader.h"
 
 using namespace std;
 
@@ -20,12 +23,12 @@ private:
 
 	const int width = 640;
 	const int height = 480;
-	GLuint shaderProgram;
-	GLuint vertexShader;
-	GLuint fragmentShader;
-	string vertexPath = "vertex.v";
-	string fragmentPath = "fragment.f";
-	GLuint vbo, vao;
+	const GLchar* vertexPath = "vertex.v";
+	const GLchar* fragmentPath = "fragment.f";
+	GLuint vao, vbo, ebo;
+	
+	GLuint texture1;
+	GLuint texture2;
 
 public:
 	CreateScene();
@@ -35,15 +38,12 @@ public:
 	bool InitGLEW();
 	bool InitVAO();
 	bool InitVBO();
-
-	GLuint LoadShader(string, string);
-	string ReadFile(string path);
-
-	void CreateShaderProgram();
-	void OutShader();
+	bool InitEBO();
 
 	void Start();
 	void MainLoop();
+	void WorkAttr();
+	void WorkTexture(GLuint &texture, const GLchar* name);
 
 	void Close();
 
