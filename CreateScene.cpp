@@ -1,7 +1,7 @@
 #pragma comment(lib, "glew32.lib")
 #include "CreateScene.h"
 
-Camera camera;
+
 
 CreateScene::CreateScene() : 
 		window(nullptr),
@@ -98,42 +98,110 @@ void CreateScene::MainLoop() {
 	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 	int keys[1024];
 
-	// Deltatime
-	GLfloat deltaTime = 0.0f;	// Time between current frame and last frame
-	GLfloat lastFrame = 0.0f;  	// Time of last frame
+	GLfloat deltaTime = 0.0f;	
+	GLfloat lastFrame = 0.0f;  
 
 	bool running = true;
 	GLfloat cameraSpeed;
-		
+			
 	while (running) {
 		SDL_Event event;
+		float currentFrame = SDL_GetTicks();
+		deltaTime = (currentFrame - lastFrame) / 100;
+		lastFrame = currentFrame;
 
-		while (SDL_PollEvent(&event)) {
+		GLfloat cameraSpeed = rotateSpeed * deltaTime;
 
-			float currentFrame = SDL_GetTicks();
-			deltaTime = (currentFrame - lastFrame) / 1000;
-			lastFrame = currentFrame;
-			
-			
+		while (SDL_PollEvent(&event)) {			
 			switch (event.type) {
 			case SDL_QUIT:
 				running = false;
 				break;
-
-			case SDL_KEYDOWN:
+			case SDL_KEYDOWN:				
 				keys[event.key.keysym.sym] = 1;
-				if (keys[SDLK_q] == 1 && keys[SDLK_LCTRL] == 1 || keys[SDLK_ESCAPE] == 1) running = false;
-				if (keys[SDLK_w]) { cout << "wwwwww" << endl; camera.KeyEvent(W, deltaTime); }
-				if (keys[SDLK_s]) camera.KeyEvent(S, deltaTime);
-				if (keys[SDLK_a]) camera.KeyEvent(A, deltaTime);
-				if (keys[SDLK_d]) camera.KeyEvent(D, deltaTime);
-				if (keys[SDLK_UP]) camera.KeyEvent(UP, deltaTime);
-				if (keys[SDLK_DOWN]) camera.KeyEvent(DOWN, deltaTime);
-				if (keys[SDLK_LEFT]) camera.KeyEvent(LEFT, deltaTime);
-				if (keys[SDLK_RIGHT]) camera.KeyEvent(RIGHT, deltaTime);
+				if (keys[SDLK_ESCAPE] == 1 || (keys[SDLK_LCTRL] == 1 && keys[SDLK_q] == 1)) {
+					cout << "Q" << endl;
+					running = false;
+				} else 
+				if (keys[SDLK_w]) {
+					cout << "W" << endl;
+					cameraPos += cameraSpeed * cameraFront;
+				} else
+				if (keys[SDLK_s]) {
+					cout << "S" << endl;
+					cameraPos -= cameraSpeed * cameraFront;
+				}
+				if (keys[SDLK_a]) {
+					cout << "A" << endl;
+					cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+				}else
+				if (keys[SDLK_d]) {
+					cout << "D" << endl;
+					cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+				}else 
+				if (keys[SDLK_LEFT]) {
+					cout << "LEFT" << endl;
+
+					Yaw -= rotateSpeed;
+
+					glm::vec3 newFront;
+					newFront.x = cos(glm::radians(Pitch)) * cos(glm::radians(Yaw));
+					newFront.y = sin(glm::radians(Pitch));
+					newFront.z = cos(glm::radians(Pitch)) * sin(glm::radians(Yaw));
+					cameraFront = glm::normalize(newFront);
+
+					cameraRight = glm::normalize(glm::cross(cameraFront, glm::vec3(0.0f, 0.1f, 0.0f)));
+					cameraUp = glm::normalize(glm::cross(cameraRight, cameraFront));
+					
+				}else
+				if (keys[SDLK_RIGHT]) {
+					cout << "RIGHT" << endl;
+					
+					Yaw += rotateSpeed;
+
+					glm::vec3 newFront;
+					newFront.x = cos(glm::radians(Pitch)) * cos(glm::radians(Yaw));
+					newFront.y = sin(glm::radians(Pitch));
+					newFront.z = cos(glm::radians(Pitch)) * sin(glm::radians(Yaw));
+					cameraFront = glm::normalize(newFront);
+
+					cameraRight = glm::normalize(glm::cross(cameraFront, glm::vec3(0.0f, 0.1f, 0.0f)));
+					cameraUp = glm::normalize(glm::cross(cameraRight, cameraFront));
+				}
+				else
+				if (keys[SDLK_UP]) {
+					cout << "UP" << endl;
+
+					Pitch += rotateSpeed;
+
+					glm::vec3 newFront;
+					newFront.x = cos(glm::radians(Pitch)) * cos(glm::radians(Yaw));
+					newFront.y = sin(glm::radians(Pitch));
+					newFront.z = cos(glm::radians(Pitch)) * sin(glm::radians(Yaw));
+					cameraFront = glm::normalize(newFront);
+
+					cameraRight = glm::normalize(glm::cross(cameraFront, glm::vec3(0.0f, 0.1f, 0.0f)));
+					cameraUp = glm::normalize(glm::cross(cameraRight, cameraFront));
+				}
+				else
+				if (keys[SDLK_DOWN]) {
+					cout << "DOWN" << endl;
+					
+					Pitch -= rotateSpeed;
+
+					glm::vec3 newFront;
+					newFront.x = cos(glm::radians(Pitch)) * cos(glm::radians(Yaw));
+					newFront.y = sin(glm::radians(Pitch));
+					newFront.z = cos(glm::radians(Pitch)) * sin(glm::radians(Yaw));
+					cameraFront = glm::normalize(newFront);
+
+					cameraRight = glm::normalize(glm::cross(cameraFront, glm::vec3(0.0f, 0.1f, 0.0f)));
+					cameraUp = glm::normalize(glm::cross(cameraRight, cameraFront));
+				}
 				break;
 			case SDL_KEYUP:
 				keys[event.key.keysym.sym] = 0;
+				break;
 			}
 		}
 		//CameraMove(deltaTime);
@@ -152,10 +220,10 @@ void CreateScene::MainLoop() {
 		ourShader.Use();
 
 		glm::mat4 view;
-		view = camera.GetCameraMatrix();
+		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
 		glm::mat4 projection;
-		projection = glm::perspective(glm::radians(45.0f), (GLfloat)width / (GLfloat)height, 0.1f, 100.0f);
+		projection = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 1000.0f);
 
 		GLint modelLoc = glGetUniformLocation(ourShader.Program, "model");
 		GLint viewLoc = glGetUniformLocation(ourShader.Program, "view");
@@ -299,10 +367,6 @@ void CreateScene::WorkTexture(GLuint &texture, const GLchar* name) {
 
 void CreateScene::DrawObject() {
 		
-}
-
-void CameraMove(float TimeForCamera) {
-
 }
 
 void CreateScene::Close() {
