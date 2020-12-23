@@ -31,7 +31,9 @@ private:
 	const int height = 480;
 	const GLchar* vertexPath = "vertex.v";
 	const GLchar* fragmentPath = "fragment.f";
-	GLuint vao, vbo, ebo;	
+	const GLchar* vertexLamp = "lampVertex.v";
+	const GLchar* fragmentLamp = "lampFragment.f";
+	GLuint vao, vaoLeght, vbo, ebo;
 	
 	GLuint texture1;
 	GLuint texture2;
@@ -49,6 +51,7 @@ private:
 	float Pitch = 0.0;
 	const float rotateSpeed = 0.8f;
 	glm::vec3 cameraRight;
+	glm::vec3 lightPos = glm::vec3(0.9f, 0.9f, 0.9f);
 public:
 	CreateScene();
 	~CreateScene();
@@ -63,9 +66,9 @@ public:
 	void MainLoop();
 	void WorkAttr();
 	void WorkTexture(GLuint &texture, const GLchar* name);
-	void DrawObject();
 
-	void mouse_callback(double xpos, double ypos);
+	void RotateCamera();
+	void InitLight();
 
 	void Close();
 };

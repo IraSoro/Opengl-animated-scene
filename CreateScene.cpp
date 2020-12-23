@@ -85,11 +85,14 @@ glm::vec3 cubePositions[] = {
 		glm::vec3(-1.3f,  1.0f, -1.5f)
 };
 
+
 void CreateScene::MainLoop() {
 	Shader ourShader(vertexPath, fragmentPath);
-	
+	Shader LampShader(vertexLamp, fragmentLamp);
+
 	WorkAttr();
-	
+	InitLight();
+
 	WorkTexture(texture1, "awesomeface.png");
 	WorkTexture(texture2, "container.jpg");
 
@@ -152,7 +155,6 @@ void CreateScene::MainLoop() {
 
 					cameraRight = glm::normalize(glm::cross(cameraFront, glm::vec3(0.0f, 0.1f, 0.0f)));
 					cameraUp = glm::normalize(glm::cross(cameraRight, cameraFront));
-					
 				}else
 				if (keys[SDLK_RIGHT]) {
 					cout << "RIGHT" << endl;
@@ -204,11 +206,11 @@ void CreateScene::MainLoop() {
 				break;
 			}
 		}
-		//CameraMove(deltaTime);
 
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
+
+		/*
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture1);
 		glUniform1i(glGetUniformLocation(ourShader.Program, "ourTexture1"), 0);
@@ -216,8 +218,14 @@ void CreateScene::MainLoop() {
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
 		glUniform1i(glGetUniformLocation(ourShader.Program, "ourTexture2"), 1);
+		*/
 
 		ourShader.Use();
+
+		GLint objectColorLoc = glGetUniformLocation(ourShader.Program, "objectColor");
+		GLint lightColorLoc = glGetUniformLocation(ourShader.Program, "lightColor");
+		glUniform3f(objectColorLoc, 1.0f, 0.5f, 0.31f);
+		glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f); 
 
 		glm::mat4 view;
 		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
@@ -233,9 +241,7 @@ void CreateScene::MainLoop() {
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
 		glBindVertexArray(vao);
-		for (GLuint i = 0; i < 10; i++)
-		{
-			// Calculate the model matrix for each object and pass it to shader before drawing
+		for (GLuint i = 0; i < 10; i++){
 			glm::mat4 model;
 			model = glm::translate(model, cubePositions[i]);
 			GLfloat angle = 20.0f * i;
@@ -246,8 +252,32 @@ void CreateScene::MainLoop() {
 		}
 		glBindVertexArray(0);
 
+
+		glBindVertexArray(vaoLeght);
+		glm::mat4 model;
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(0);
+
+		LampShader.Use();
+		
+		modelLoc = glGetUniformLocation(LampShader.Program, "model");
+		viewLoc = glGetUniformLocation(LampShader.Program, "view");
+		projLoc = glGetUniformLocation(LampShader.Program, "projection");
+		
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+		model = glm::mat4();
+		model = glm::translate(model, lightPos);
+		model = glm::scale(model, glm::vec3(0.2f)); 
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		
+		glBindVertexArray(vaoLeght);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(0);
+
 		//SDL_Delay(200);
-		// обновляем экран
+		
 		SDL_GL_SwapWindow(window);
 	}
 
@@ -345,6 +375,18 @@ void CreateScene::WorkAttr() {
 	return;
 }
 
+void CreateScene::InitLight() {
+	
+	glGenVertexArrays(1, &vaoLeght);
+	glBindVertexArray(vaoLeght);
+	
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
+	glEnableVertexAttribArray(0);
+	glBindVertexArray(0);
+}
+
 void CreateScene::WorkTexture(GLuint &texture, const GLchar* name) {
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture); 
@@ -365,8 +407,15 @@ void CreateScene::WorkTexture(GLuint &texture, const GLchar* name) {
 	return;
 }
 
-void CreateScene::DrawObject() {
-		
+void CreateScene::RotateCamera() {
+	glm::vec3 newFront;
+	newFront.x = cos(glm::radians(Pitch)) * cos(glm::radians(Yaw));
+	newFront.y = sin(glm::radians(Pitch));
+	newFront.z = cos(glm::radians(Pitch)) * sin(glm::radians(Yaw));
+	cameraFront = glm::normalize(newFront);
+
+	cameraRight = glm::normalize(glm::cross(cameraFront, glm::vec3(0.0f, 0.1f, 0.0f)));
+	cameraUp = glm::normalize(glm::cross(cameraRight, cameraFront));
 }
 
 void CreateScene::Close() {
