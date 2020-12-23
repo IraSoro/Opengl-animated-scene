@@ -99,7 +99,7 @@ void CreateScene::MainLoop() {
 	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-	int keys[1024];
+	int keys[1024] = {0};
 
 	GLfloat deltaTime = 0.0f;	
 	GLfloat lastFrame = 0.0f;  
@@ -120,29 +120,24 @@ void CreateScene::MainLoop() {
 			case SDL_QUIT:
 				running = false;
 				break;
-			case SDL_KEYDOWN:				
+			case SDL_KEYDOWN:
 				keys[event.key.keysym.sym] = 1;
-				if (keys[SDLK_ESCAPE] == 1 || (keys[SDLK_LCTRL] == 1 && keys[SDLK_q] == 1)) {
+				if (keys[SDLK_ESCAPE] || (keys[SDLK_LCTRL] && keys[SDLK_q])) {
 					cout << "Q" << endl;
 					running = false;
-				} else 
-				if (keys[SDLK_w]) {
+				} else if (keys[SDLK_w]) {
 					cout << "W" << endl;
 					cameraPos += cameraSpeed * cameraFront;
-				} else
-				if (keys[SDLK_s]) {
+				} else if (keys[SDLK_s]) {
 					cout << "S" << endl;
 					cameraPos -= cameraSpeed * cameraFront;
-				}
-				if (keys[SDLK_a]) {
+				} else if (keys[SDLK_a]) {
 					cout << "A" << endl;
 					cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-				}else
-				if (keys[SDLK_d]) {
+				} else if (keys[SDLK_d]) {
 					cout << "D" << endl;
 					cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-				}else 
-				if (keys[SDLK_LEFT]) {
+				}else if (keys[SDLK_LEFT]) {
 					cout << "LEFT" << endl;
 
 					Yaw -= rotateSpeed;
@@ -155,8 +150,7 @@ void CreateScene::MainLoop() {
 
 					cameraRight = glm::normalize(glm::cross(cameraFront, glm::vec3(0.0f, 0.1f, 0.0f)));
 					cameraUp = glm::normalize(glm::cross(cameraRight, cameraFront));
-				}else
-				if (keys[SDLK_RIGHT]) {
+				} else if (keys[SDLK_RIGHT]) {
 					cout << "RIGHT" << endl;
 					
 					Yaw += rotateSpeed;
@@ -169,9 +163,7 @@ void CreateScene::MainLoop() {
 
 					cameraRight = glm::normalize(glm::cross(cameraFront, glm::vec3(0.0f, 0.1f, 0.0f)));
 					cameraUp = glm::normalize(glm::cross(cameraRight, cameraFront));
-				}
-				else
-				if (keys[SDLK_UP]) {
+				} else if (keys[SDLK_UP]) {
 					cout << "UP" << endl;
 
 					Pitch += rotateSpeed;
@@ -184,9 +176,7 @@ void CreateScene::MainLoop() {
 
 					cameraRight = glm::normalize(glm::cross(cameraFront, glm::vec3(0.0f, 0.1f, 0.0f)));
 					cameraUp = glm::normalize(glm::cross(cameraRight, cameraFront));
-				}
-				else
-				if (keys[SDLK_DOWN]) {
+				} else if (keys[SDLK_DOWN]) {
 					cout << "DOWN" << endl;
 					
 					Pitch -= rotateSpeed;
@@ -210,7 +200,8 @@ void CreateScene::MainLoop() {
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		/*
+		ourShader.Use();
+
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture1);
 		glUniform1i(glGetUniformLocation(ourShader.Program, "ourTexture1"), 0);
@@ -218,9 +209,6 @@ void CreateScene::MainLoop() {
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
 		glUniform1i(glGetUniformLocation(ourShader.Program, "ourTexture2"), 1);
-		*/
-
-		ourShader.Use();
 
 		GLint objectColorLoc = glGetUniformLocation(ourShader.Program, "objectColor");
 		GLint lightColorLoc = glGetUniformLocation(ourShader.Program, "lightColor");
