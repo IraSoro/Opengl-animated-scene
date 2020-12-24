@@ -242,10 +242,16 @@ void CreateScene::MainLoop() {
 			}
 		}
 
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		ourShader.Use();
+
+		GLint light_position = glGetUniformLocation(ourShader.Program, "light.position");
+		GLint viewPos = glGetUniformLocation(ourShader.Program, "viewPos");
+
+		glUniform3fv(light_position, 1, glm::value_ptr(lightPos));
+		glUniform3fv(viewPos, 1, glm::value_ptr(cameraPos));
 
 		/*
 		glActiveTexture(GL_TEXTURE0);
@@ -256,13 +262,36 @@ void CreateScene::MainLoop() {
 		glBindTexture(GL_TEXTURE_2D, texture2);
 		glUniform1i(glGetUniformLocation(ourShader.Program, "ourTexture2"), 1);
 		*/
-
+		/*
 		GLint objectColorLoc = glGetUniformLocation(ourShader.Program, "objectColor");
 		GLint lightColorLoc = glGetUniformLocation(ourShader.Program, "lightColor");
 		GLint lightPosLoc = glGetUniformLocation(ourShader.Program, "lightPos");
 		glUniform3f(objectColorLoc, 1.0f, 0.5f, 0.31f);
 		glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f); 
 		glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
+		*/
+		
+		glm::vec3 lightColor;
+		lightColor.x = sin(currentFrame/1000 * 2.0f);
+		lightColor.y = sin(currentFrame/1000 * 0.7f);
+		lightColor.z = sin(currentFrame/1000 * 1.3f);
+		glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f); 
+		glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
+		GLint light_ambient = glGetUniformLocation(ourShader.Program, "light.ambient");
+		GLint light_diffuse = glGetUniformLocation(ourShader.Program, "light.diffuse");
+		GLint light_specular = glGetUniformLocation(ourShader.Program, "light.specular");
+		glUniform3fv(light_ambient, 1, glm::value_ptr(ambientColor));
+		glUniform3fv(light_diffuse, 1, glm::value_ptr(diffuseColor));
+		glUniform3f(light_specular, 1.0f, 1.0f, 1.0f);
+
+		GLint material_ambient = glGetUniformLocation(ourShader.Program, "material.ambient");
+		GLint material_diffuse = glGetUniformLocation(ourShader.Program, "material.diffuse");
+		GLint material_specular = glGetUniformLocation(ourShader.Program, "material.specular");
+		GLint material_shininess = glGetUniformLocation(ourShader.Program, "material.shininess");
+		glUniform3f(material_ambient, 1.0f, 0.5f, 0.31f);
+		glUniform3f(material_diffuse, 1.0f, 0.5f, 0.31f);
+		glUniform3f(material_specular, 0.5f, 0.5f, 0.5f);
+		glUniform1f(material_shininess, 32.0f);
 
 		glm::mat4 view;
 		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);

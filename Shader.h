@@ -94,6 +94,7 @@ public:
 	{
 		glUseProgram(this->Program);
 	}
+
 };
 
 #endif
