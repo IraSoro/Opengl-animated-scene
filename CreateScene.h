@@ -10,6 +10,7 @@
 #include <SDL.h>
 #include <GL/glew.h>
 #include <GL/GLU.h>
+#include <stb_image.h>
 
 #include <SOIL2.h>
 
@@ -51,7 +52,7 @@ private:
 	float Pitch = 0.0;
 	const float rotateSpeed = 0.8f;
 	glm::vec3 cameraRight;
-	glm::vec3 lightPos = glm::vec3(0.9f, 0.9f, 0.9f);
+	glm::vec3 lightPos = glm::vec3(0.0f, 0.9f, 0.0f);
 public:
 	CreateScene();
 	~CreateScene();
@@ -66,6 +67,7 @@ public:
 	void MainLoop();
 	void WorkAttr();
 	void WorkTexture(GLuint &texture, const GLchar* name);
+	unsigned int loadTexture(char const* path);
 
 	void RotateCamera();
 	void InitLight();
