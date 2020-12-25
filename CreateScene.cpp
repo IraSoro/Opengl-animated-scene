@@ -165,7 +165,6 @@ void CreateScene::MainLoop() {
 		float currentFrame = SDL_GetTicks();
 		deltaTime = (currentFrame - lastFrame) / 100;
 		lastFrame = currentFrame;
-
 		GLfloat cameraSpeed = rotateSpeed * deltaTime;
 
 		while (SDL_PollEvent(&event)) {			
@@ -255,10 +254,10 @@ void CreateScene::MainLoop() {
 
 		ourShader.Use();
 
-		GLint light_direction = glGetUniformLocation(ourShader.Program, "light.direction");
+		GLint light_position = glGetUniformLocation(ourShader.Program, "light.position");
 		GLint viewPos = glGetUniformLocation(ourShader.Program, "viewPos");
 
-		glUniform3f(light_direction, -0.2f, -1.0f, -0.3f);
+		glUniform3fv(light_position, 1, glm::value_ptr(lightPos));
 		glUniform3fv(viewPos, 1, glm::value_ptr(cameraPos));
 
 		/*
@@ -279,19 +278,25 @@ void CreateScene::MainLoop() {
 		glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
 		*/
 		
-		
+		// light properties
+		glm::vec3 lightColor;
+		lightColor.x = 0.8f;// sin(currentFrame / 1000 * 2.0f);
+		lightColor.y = 0.4f;// sin(currentFrame / 1000 * 0.7f);
+		lightColor.z = sin(currentFrame / 1000 * 1.3f);
+		glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f); 
+		glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
 		GLint light_ambient = glGetUniformLocation(ourShader.Program, "light.ambient");
 		GLint light_diffuse = glGetUniformLocation(ourShader.Program, "light.diffuse");
 		GLint light_specular = glGetUniformLocation(ourShader.Program, "light.specular");
 		GLint light_constant = glGetUniformLocation(ourShader.Program, "light.constant");
 		GLint light_light = glGetUniformLocation(ourShader.Program, "light.light");
 		GLint light_quadratic = glGetUniformLocation(ourShader.Program, "light.quadratic");
-		glUniform3f(light_ambient,  0.2f, 0.2f, 0.2f);
-		glUniform3f(light_diffuse,  0.5f, 0.5f, 0.5f);
+		glUniform3fv(light_ambient,1, glm::value_ptr(ambientColor));
+		glUniform3fv(light_diffuse,1, glm::value_ptr(diffuseColor));
 		glUniform3f(light_specular, 1.0f, 1.0f, 1.0f);
 		glUniform1f(light_constant, 1.0f);
-		glUniform1f(light_light, 0.09f);
-		glUniform1f(light_quadratic, 0.032f);
+		glUniform1f(light_light, 0.045f);
+		glUniform1f(light_quadratic, 0.0075f);
 
 		GLint material_shininess = glGetUniformLocation(ourShader.Program, "material.shininess");
 		glUniform1f(material_shininess, 64.0f);
@@ -341,6 +346,8 @@ void CreateScene::MainLoop() {
 		
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+		lightPos.x = cos(currentFrame / 1000) * 2.5f;
+		lightPos.y = sin(currentFrame / 1000) * 2.5f;
 		model = glm::mat4();
 		model = glm::translate(model, lightPos);
 		model = glm::scale(model, glm::vec3(0.2f)); 

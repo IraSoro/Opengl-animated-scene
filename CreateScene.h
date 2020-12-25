@@ -52,7 +52,7 @@ private:
 	float Pitch = 0.0;
 	const float rotateSpeed = 0.8f;
 	glm::vec3 cameraRight;
-	glm::vec3 lightPos = glm::vec3(0.0f, 0.9f, 0.0f);
+	glm::vec3 lightPos = glm::vec3(0.0f, 0.9f, -1.0f);
 public:
 	CreateScene();
 	~CreateScene();
