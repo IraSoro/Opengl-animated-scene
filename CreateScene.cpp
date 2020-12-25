@@ -283,9 +283,15 @@ void CreateScene::MainLoop() {
 		GLint light_ambient = glGetUniformLocation(ourShader.Program, "light.ambient");
 		GLint light_diffuse = glGetUniformLocation(ourShader.Program, "light.diffuse");
 		GLint light_specular = glGetUniformLocation(ourShader.Program, "light.specular");
+		GLint light_constant = glGetUniformLocation(ourShader.Program, "light.constant");
+		GLint light_light = glGetUniformLocation(ourShader.Program, "light.light");
+		GLint light_quadratic = glGetUniformLocation(ourShader.Program, "light.quadratic");
 		glUniform3f(light_ambient,  0.2f, 0.2f, 0.2f);
 		glUniform3f(light_diffuse,  0.5f, 0.5f, 0.5f);
 		glUniform3f(light_specular, 1.0f, 1.0f, 1.0f);
+		glUniform1f(light_constant, 1.0f);
+		glUniform1f(light_light, 0.09f);
+		glUniform1f(light_quadratic, 0.032f);
 
 		GLint material_shininess = glGetUniformLocation(ourShader.Program, "material.shininess");
 		glUniform1f(material_shininess, 64.0f);
@@ -326,7 +332,7 @@ void CreateScene::MainLoop() {
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
-		/*
+		
 		LampShader.Use();
 		
 		modelLoc = glGetUniformLocation(LampShader.Program, "model");
@@ -343,7 +349,8 @@ void CreateScene::MainLoop() {
 		glBindVertexArray(vaoLeght);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
-		*/
+		
+
 		//SDL_Delay(200);
 		
 		SDL_GL_SwapWindow(window);
