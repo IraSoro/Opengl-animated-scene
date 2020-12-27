@@ -1,7 +1,7 @@
 #pragma comment(lib, "glew32.lib")
 #include "CreateScene.h"
 
-
+using namespace std;
 
 CreateScene::CreateScene() : 
 		window(nullptr),
@@ -160,6 +160,9 @@ void CreateScene::MainLoop() {
 	bool running = true;
 	GLfloat cameraSpeed;
 
+	float temp_1 = 0.0f;
+	float temp_2 = 0.0f;
+
 	while (running) {
 		SDL_Event event;
 		float currentFrame = SDL_GetTicks();
@@ -280,22 +283,40 @@ void CreateScene::MainLoop() {
 		
 		// light properties
 		glm::vec3 lightColor;
-		lightColor.x = 0.8f;// sin(currentFrame / 1000 * 2.0f);
-		lightColor.y = 0.4f;// sin(currentFrame / 1000 * 0.7f);
-		lightColor.z = sin(currentFrame / 1000 * 1.3f);
+
+		temp_2 = sin(currentFrame / 1000);
+		if (temp_2 > 0.0f) {
+			lightColor.x = 1.0f;
+			lightColor.y = sin(currentFrame / 1000);
+			lightColor.z = sin(currentFrame / 1000);
+		}
+		else {
+			lightColor.x = abs(cos(currentFrame / 1000));
+			lightColor.y = 0.0f;
+			lightColor.z = 0.0f;
+		}
+		
+		/*
+		temp_2 = sin(currentFrame / 1000 );
+		cout << "temp_2 = " << temp_2<< endl; 
+		cout << "currentFrame / 1000 = " << currentFrame / 1000 << endl;
+
+		temp_1 = temp_2;
+		*/
+
 		glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f); 
 		glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
 		GLint light_ambient = glGetUniformLocation(ourShader.Program, "light.ambient");
+		glUniform3fv(light_ambient, 1, glm::value_ptr(ambientColor));
 		GLint light_diffuse = glGetUniformLocation(ourShader.Program, "light.diffuse");
+		glUniform3fv(light_diffuse, 1, glm::value_ptr(diffuseColor));
 		GLint light_specular = glGetUniformLocation(ourShader.Program, "light.specular");
-		GLint light_constant = glGetUniformLocation(ourShader.Program, "light.constant");
-		GLint light_light = glGetUniformLocation(ourShader.Program, "light.light");
-		GLint light_quadratic = glGetUniformLocation(ourShader.Program, "light.quadratic");
-		glUniform3fv(light_ambient,1, glm::value_ptr(ambientColor));
-		glUniform3fv(light_diffuse,1, glm::value_ptr(diffuseColor));
 		glUniform3f(light_specular, 1.0f, 1.0f, 1.0f);
+		GLint light_constant = glGetUniformLocation(ourShader.Program, "light.constant");
 		glUniform1f(light_constant, 1.0f);
+		GLint light_light = glGetUniformLocation(ourShader.Program, "light.light");
 		glUniform1f(light_light, 0.045f);
+		GLint light_quadratic = glGetUniformLocation(ourShader.Program, "light.quadratic");
 		glUniform1f(light_quadratic, 0.0075f);
 
 		GLint material_shininess = glGetUniformLocation(ourShader.Program, "material.shininess");
