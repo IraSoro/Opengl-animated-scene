@@ -160,8 +160,7 @@ void CreateScene::MainLoop() {
 	bool running = true;
 	GLfloat cameraSpeed;
 
-	float temp_1 = 0.0f;
-	float temp_2 = 0.0f;
+	float temp = 0.0f;
 
 	while (running) {
 		SDL_Event event;
@@ -263,59 +262,39 @@ void CreateScene::MainLoop() {
 		glUniform3fv(light_position, 1, glm::value_ptr(lightPos));
 		glUniform3fv(viewPos, 1, glm::value_ptr(cameraPos));
 
-		/*
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture1);
-		glUniform1i(glGetUniformLocation(ourShader.Program, "ourTexture1"), 0);
-
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, texture2);
-		glUniform1i(glGetUniformLocation(ourShader.Program, "ourTexture2"), 1);
-		*/
-		/*
-		GLint objectColorLoc = glGetUniformLocation(ourShader.Program, "objectColor");
-		GLint lightColorLoc = glGetUniformLocation(ourShader.Program, "lightColor");
-		GLint lightPosLoc = glGetUniformLocation(ourShader.Program, "lightPos");
-		glUniform3f(objectColorLoc, 1.0f, 0.5f, 0.31f);
-		glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f); 
-		glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
-		*/
-		
 		// light properties
 		glm::vec3 lightColor;
 
-		temp_2 = sin(currentFrame / 1000);
-		if (temp_2 > 0.0f) {
+		temp = sin(currentFrame / 1000 * 0.5f);
+		if (temp > 0.0f) {
 			lightColor.x = 1.0f;
-			lightColor.y = sin(currentFrame / 1000);
-			lightColor.z = sin(currentFrame / 1000);
+			lightColor.y = sin(currentFrame / 1000 * 0.5f);
+			lightColor.z = sin(currentFrame / 1000 * 0.5f);
 		}
 		else {
-			lightColor.x = abs(cos(currentFrame / 1000));
+			lightColor.x = abs(cos(currentFrame / 1000 * 0.5f));
 			lightColor.y = 0.0f;
 			lightColor.z = 0.0f;
 		}
-		
-		/*
-		temp_2 = sin(currentFrame / 1000 );
-		cout << "temp_2 = " << temp_2<< endl; 
-		cout << "currentFrame / 1000 = " << currentFrame / 1000 << endl;
 
-		temp_1 = temp_2;
-		*/
-
-		glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f); 
+		glm::vec3 diffuseColor = lightColor * glm::vec3(0.8f); 
 		glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
+
 		GLint light_ambient = glGetUniformLocation(ourShader.Program, "light.ambient");
 		glUniform3fv(light_ambient, 1, glm::value_ptr(ambientColor));
+
 		GLint light_diffuse = glGetUniformLocation(ourShader.Program, "light.diffuse");
 		glUniform3fv(light_diffuse, 1, glm::value_ptr(diffuseColor));
+
 		GLint light_specular = glGetUniformLocation(ourShader.Program, "light.specular");
 		glUniform3f(light_specular, 1.0f, 1.0f, 1.0f);
+
 		GLint light_constant = glGetUniformLocation(ourShader.Program, "light.constant");
 		glUniform1f(light_constant, 1.0f);
+
 		GLint light_light = glGetUniformLocation(ourShader.Program, "light.light");
 		glUniform1f(light_light, 0.045f);
+
 		GLint light_quadratic = glGetUniformLocation(ourShader.Program, "light.quadratic");
 		glUniform1f(light_quadratic, 0.0075f);
 
@@ -360,6 +339,9 @@ void CreateScene::MainLoop() {
 		glBindVertexArray(0);
 		
 		LampShader.Use();
+
+		GLint vertexColorLocation = glGetUniformLocation(LampShader.Program, "ourColor");
+		glUniform4f(vertexColorLocation, lightColor.x, lightColor.y, lightColor.z, 1.0f);
 		
 		modelLoc = glGetUniformLocation(LampShader.Program, "model");
 		viewLoc = glGetUniformLocation(LampShader.Program, "view");
@@ -367,8 +349,8 @@ void CreateScene::MainLoop() {
 		
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-		lightPos.x = cos(currentFrame / 1000) * 2.5f;
-		lightPos.y = sin(currentFrame / 1000) * 2.5f;
+		lightPos.x = cos(currentFrame / 1000 * 0.5f) * 2.5f;
+		lightPos.y = sin(currentFrame / 1000 * 0.5f) * 2.5f;
 		model = glm::mat4();
 		model = glm::translate(model, lightPos);
 		model = glm::scale(model, glm::vec3(0.2f)); 
@@ -378,7 +360,6 @@ void CreateScene::MainLoop() {
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
 		
-
 		//SDL_Delay(200);
 		
 		SDL_GL_SwapWindow(window);
