@@ -19,7 +19,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Shader.h"
-//#include "Camera.h"
+#include "Model.h"
 
 using namespace std;
 
@@ -34,6 +34,8 @@ private:
 	const GLchar* fragmentPath = "fragment.f";
 	const GLchar* vertexLamp = "lampVertex.v";
 	const GLchar* fragmentLamp = "lampFragment.f";
+	const GLchar* vertexModel = "loadingModelVert.v";
+	const GLchar* fragmentModel = "loadingModelFrag.f";
 	GLuint vao, vaoLeght, vbo, ebo;
 	
 	GLuint texture1;
