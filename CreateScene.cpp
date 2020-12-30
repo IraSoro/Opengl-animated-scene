@@ -154,7 +154,8 @@ void CreateScene::MainLoop() {
 	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 	int keys[1024] = { 0 };
 
-	Model ourModel("sun/sun.obj");
+	Model ModelSun("sun/sun.obj");
+	Model ModelHouse("house/house.obj");
 
 	GLfloat deltaTime = 0.0f;
 	GLfloat lastFrame = 0.0f;
@@ -163,6 +164,8 @@ void CreateScene::MainLoop() {
 	GLfloat cameraSpeed;
 
 	float temp = 0.0f;
+	float fast = 0.25f;
+	float radius = 2.5f;
 
 	while (running) {
 		SDL_Event event;
@@ -179,22 +182,22 @@ void CreateScene::MainLoop() {
 			case SDL_KEYDOWN:
 				keys[event.key.keysym.sym] = 1;
 				if (keys[SDLK_ESCAPE] || (keys[SDLK_LCTRL] && keys[SDLK_q])) {
-					cout << "Q" << endl;
+					//cout << "Q" << endl;
 					running = false;
 				} else if (keys[SDLK_w]) {
-					cout << "W" << endl;
+					//cout << "W" << endl;
 					cameraPos += cameraSpeed * cameraFront;
 				} else if (keys[SDLK_s]) {
-					cout << "S" << endl;
+					//cout << "S" << endl;
 					cameraPos -= cameraSpeed * cameraFront;
 				} else if (keys[SDLK_a]) {
-					cout << "A" << endl;
+					//cout << "A" << endl;
 					cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 				} else if (keys[SDLK_d]) {
-					cout << "D" << endl;
+					//cout << "D" << endl;
 					cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 				}else if (keys[SDLK_LEFT]) {
-					cout << "LEFT" << endl;
+					//cout << "LEFT" << endl;
 
 					Yaw -= rotateSpeed;
 
@@ -207,7 +210,7 @@ void CreateScene::MainLoop() {
 					cameraRight = glm::normalize(glm::cross(cameraFront, glm::vec3(0.0f, 0.1f, 0.0f)));
 					cameraUp = glm::normalize(glm::cross(cameraRight, cameraFront));
 				} else if (keys[SDLK_RIGHT]) {
-					cout << "RIGHT" << endl;
+					//cout << "RIGHT" << endl;
 					
 					Yaw += rotateSpeed;
 
@@ -220,7 +223,7 @@ void CreateScene::MainLoop() {
 					cameraRight = glm::normalize(glm::cross(cameraFront, glm::vec3(0.0f, 0.1f, 0.0f)));
 					cameraUp = glm::normalize(glm::cross(cameraRight, cameraFront));
 				} else if (keys[SDLK_UP]) {
-					cout << "UP" << endl;
+					//cout << "UP" << endl;
 
 					Pitch += rotateSpeed;
 
@@ -233,7 +236,7 @@ void CreateScene::MainLoop() {
 					cameraRight = glm::normalize(glm::cross(cameraFront, glm::vec3(0.0f, 0.1f, 0.0f)));
 					cameraUp = glm::normalize(glm::cross(cameraRight, cameraFront));
 				} else if (keys[SDLK_DOWN]) {
-					cout << "DOWN" << endl;
+					//cout << "DOWN" << endl;
 					
 					Pitch -= rotateSpeed;
 
@@ -264,25 +267,25 @@ void CreateScene::MainLoop() {
 		glUniform3fv(light_position, 1, glm::value_ptr(lightPos));
 		glUniform3fv(viewPos, 1, glm::value_ptr(cameraPos));
 
-		// light properties
 		glm::vec3 lightColor;
+		/*
 		lightColor.x = 1.0f;
 		lightColor.y = 1.0f;
 		lightColor.z = 1.0f;
-
-		/*
-		temp = sin(currentFrame / 1000 * 0.5f);
+		*/
+		
+		temp = sin(currentFrame / 1000 * fast);
 		if (temp > 0.0f) {
 			lightColor.x = 1.0f;
-			lightColor.y = sin(currentFrame / 1000 * 0.5f);
-			lightColor.z = sin(currentFrame / 1000 * 0.5f);
+			lightColor.y = sin(currentFrame / 1000 * fast);
+			lightColor.z = sin(currentFrame / 1000 * fast);
 		}
 		else {
-			lightColor.x = abs(cos(currentFrame / 1000 * 0.5f));
+			lightColor.x = abs(cos(currentFrame / 1000 * fast));
 			lightColor.y = 0.0f;
 			lightColor.z = 0.0f;
 		}
-		*/
+		
 		glm::vec3 diffuseColor = lightColor * glm::vec3(0.8f); 
 		glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
 
@@ -299,10 +302,10 @@ void CreateScene::MainLoop() {
 		glUniform1f(light_constant, 1.0f);
 
 		GLint light_light = glGetUniformLocation(ourShader.Program, "light.light");
-		glUniform1f(light_light, 0.045f);
+		glUniform1f(light_light, 0.0014f);
 
 		GLint light_quadratic = glGetUniformLocation(ourShader.Program, "light.quadratic");
-		glUniform1f(light_quadratic, 0.0075f);
+		glUniform1f(light_quadratic, 0.000007f);
 
 		GLint material_shininess = glGetUniformLocation(ourShader.Program, "material.shininess");
 		glUniform1f(material_shininess, 64.0f);
@@ -365,11 +368,10 @@ void CreateScene::MainLoop() {
 		model = glm::rotate(model, 0.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		
-		ourModel.Draw(ourShader);
-			   
+		ModelHouse.Draw(ourShader);
+					   
 		
 		LampShader.Use();
-
 
 		GLint vertexColorLocation = glGetUniformLocation(LampShader.Program, "ourColor");
 		glUniform4f(vertexColorLocation, lightColor.x, lightColor.y, lightColor.z, 1.0f);
@@ -380,15 +382,16 @@ void CreateScene::MainLoop() {
 		
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-		lightPos.x = cos(currentFrame / 1000 * 0.5f) * 2.5f;
-		lightPos.y = sin(currentFrame / 1000 * 0.5f) * 2.5f;
+		lightPos.x = cos(currentFrame / 1000 * fast) * radius;
+		lightPos.y = sin(currentFrame / 1000 * fast) * radius;
+		lightPos.z = 0.0f;
 		model = glm::mat4();
 		model = glm::translate(model, lightPos);
 		model = glm::scale(model, glm::vec3(0.2f)); 
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		
 		glBindVertexArray(vaoLeght);
-		ourModel.Draw(LampShader);
+		ModelSun.Draw(LampShader);
 		//glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
 		
