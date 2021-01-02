@@ -138,17 +138,6 @@ void CreateScene::MainLoop() {
 	WorkAttr();
 	InitLight();
 	
-	//ourShader.Use();
-
-	//GLint material_diffuse = glGetUniformLocation(ourShader.Program, "material.diffuse");
-	//GLint material_specular = glGetUniformLocation(ourShader.Program, "material.specular");
-
-	//glUniform1i(material_diffuse, 0);
-	//glUniform1i(material_specular, 1);
-	
-	//unsigned int diffuseMap = loadTexture("container2.png");
-	//unsigned int specularMap = loadTexture("container2_specular.png");
-	
 	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -393,6 +382,10 @@ bool CreateScene::Init() {
 	if (window == NULL) {
 		return false;
 	}
+	   
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	return true;
 }
@@ -492,7 +485,7 @@ void CreateScene::WorkTexture(GLuint &texture, const GLchar* name) {
 	// Load, create texture and generate mipmaps
 	int width, height;
 	unsigned char* image = SOIL_load_image(name, &width, &height, 0, SOIL_LOAD_RGB);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	SOIL_free_image_data(image);
 	glBindTexture(GL_TEXTURE_2D, 0);
