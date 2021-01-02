@@ -164,8 +164,10 @@ void CreateScene::MainLoop() {
 	GLfloat cameraSpeed;
 
 	float temp = 0.0f;
-	float fast = 0.25f;
+	float fast = 0.5f;
 	float radius = 2.5f;
+	float val = 0.0f;
+	float val1 = 0.0f;
 
 	while (running) {
 		SDL_Event event;
@@ -275,15 +277,25 @@ void CreateScene::MainLoop() {
 		*/
 		
 		temp = sin(currentFrame / 1000 * fast);
+		val = abs(cos(currentFrame / 1000 * fast));
+		val1 = val / 3;
+		float val2 = val + 0.1f;
+
 		if (temp > 0.0f) {
 			lightColor.x = 1.0f;
-			lightColor.y = sin(currentFrame / 1000 * fast);
-			lightColor.z = sin(currentFrame / 1000 * fast);
+			if (temp < val1) {
+				lightColor.y = val1;
+				lightColor.z = val1;
+			}
+			else {
+				lightColor.y = temp;
+				lightColor.z = temp;
+			}
 		}
 		else {
-			lightColor.x = abs(cos(currentFrame / 1000 * fast));
-			lightColor.y = 0.0f;
-			lightColor.z = 0.0f;
+			lightColor.x = val;
+			lightColor.y = val1;
+			lightColor.z = val1;
 		}
 		
 		glm::vec3 diffuseColor = lightColor * glm::vec3(0.8f); 
@@ -309,47 +321,7 @@ void CreateScene::MainLoop() {
 
 		GLint material_shininess = glGetUniformLocation(ourShader.Program, "material.shininess");
 		glUniform1f(material_shininess, 64.0f);
-		/*
-		glm::mat4 view;
-		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-		glm::mat4 projection;
-		projection = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 1000.0f);
-
-		GLint modelLoc = glGetUniformLocation(ourShader.Program, "model");
-		GLint viewLoc = glGetUniformLocation(ourShader.Program, "view");
-		GLint projLoc = glGetUniformLocation(ourShader.Program, "projection");
-
-		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, diffuseMap);
-		
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, specularMap);
-
-		glBindVertexArray(vao);
-		for (GLuint i = 0; i < 10; i++){
-			glm::mat4 model;
-			model = glm::translate(model, cubePositions[i]);
-			GLfloat angle = 20.0f * i;
-			model = glm::rotate(model, angle, glm::vec3(1.0f, 0.3f, 0.5f));
-			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
-		glBindVertexArray(0);
-
-
-		glBindVertexArray(vaoLeght);
-		glm::mat4 model;
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		glBindVertexArray(0);
-		*/
-		
-		//ourShader.Use();
-
+	
 		glm::mat4 view;
 		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 		glm::mat4 projection;
@@ -392,11 +364,8 @@ void CreateScene::MainLoop() {
 		
 		glBindVertexArray(vaoLeght);
 		ModelSun.Draw(LampShader);
-		//glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
 		
-
-
 		//SDL_Delay(200);
 		
 		SDL_GL_SwapWindow(window);
