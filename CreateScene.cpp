@@ -146,7 +146,7 @@ void CreateScene::MainLoop() {
 
 	Model ModelSun("sun/sun.obj");
 	Model ModelHouse("house/house.obj");
-	Model ModelClouds("C:/Users/User/Desktop/stylize-clouds/source/clouds.obj");
+	Model ModelClouds("clouds/clouds.obj");
 
 	GLfloat deltaTime = 0.0f;
 	GLfloat lastFrame = 0.0f;
@@ -156,7 +156,7 @@ void CreateScene::MainLoop() {
 
 	float temp = 0.0f;
 	float fast = 0.5f;
-	float radius = 2.5f;
+	float radius = 2.0f;
 	float val = 0.0f;
 	float val1 = 0.0f;
 
@@ -292,6 +292,9 @@ void CreateScene::MainLoop() {
 		glm::vec3 diffuseColor = lightColor * glm::vec3(0.8f); 
 		glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
 
+		GLint opacity = glGetUniformLocation(ourShader.Program, "opacity");
+		glUniform1f(opacity, 1.0f);
+
 		GLint light_ambient = glGetUniformLocation(ourShader.Program, "light.ambient");
 		glUniform3fv(light_ambient, 1, glm::value_ptr(ambientColor));
 
@@ -332,10 +335,12 @@ void CreateScene::MainLoop() {
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		
 		ModelHouse.Draw(ourShader);
+
+		glUniform1f(opacity, 0.2f);
 		ModelClouds.Draw(ourShader);
 		  		
 		LampShader.Use();
-
+		
 		GLint vertexColorLocation = glGetUniformLocation(LampShader.Program, "ourColor");
 		glUniform4f(vertexColorLocation, lightColor.x, lightColor.y, lightColor.z, 0.5f);
 		

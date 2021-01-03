@@ -27,6 +27,8 @@ uniform vec3 viewPos;
 uniform Material material;
 uniform Light light;
 
+uniform float opacity;
+
 void main()
 {
     // ambient
@@ -53,5 +55,5 @@ void main()
     specular *= attenuation;   
         
     vec3 result = ambient + diffuse + specular;
-    FragColor = vec4(result, 1.0);
+    FragColor = vec4(result, opacity);
 } 
