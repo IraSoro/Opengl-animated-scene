@@ -337,7 +337,7 @@ void CreateScene::MainLoop() {
 		LampShader.Use();
 
 		GLint vertexColorLocation = glGetUniformLocation(LampShader.Program, "ourColor");
-		glUniform4f(vertexColorLocation, lightColor.x, lightColor.y, lightColor.z, 1.0f);
+		glUniform4f(vertexColorLocation, lightColor.x, lightColor.y, lightColor.z, 0.5f);
 		
 		modelLoc = glGetUniformLocation(LampShader.Program, "model");
 		viewLoc = glGetUniformLocation(LampShader.Program, "view");
