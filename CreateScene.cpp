@@ -134,6 +134,7 @@ glm::vec3 cubePositions[] = {
 void CreateScene::MainLoop() {
 	Shader ourShader(vertexPath, fragmentPath);
 	Shader LampShader(vertexLamp, fragmentLamp);
+	Shader CloudShader(vertexLamp, fragmentLamp);
 
 	WorkAttr();
 	InitLight();
@@ -145,6 +146,7 @@ void CreateScene::MainLoop() {
 
 	Model ModelSun("sun/sun.obj");
 	Model ModelHouse("house/house.obj");
+	Model ModelClouds("C:/Users/User/Desktop/stylize-clouds/source/clouds.obj");
 
 	GLfloat deltaTime = 0.0f;
 	GLfloat lastFrame = 0.0f;
@@ -330,8 +332,8 @@ void CreateScene::MainLoop() {
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		
 		ModelHouse.Draw(ourShader);
-					   
-		
+		ModelClouds.Draw(ourShader);
+		  		
 		LampShader.Use();
 
 		GLint vertexColorLocation = glGetUniformLocation(LampShader.Program, "ourColor");
@@ -341,10 +343,11 @@ void CreateScene::MainLoop() {
 		viewLoc = glGetUniformLocation(LampShader.Program, "view");
 		projLoc = glGetUniformLocation(LampShader.Program, "projection");
 		
+
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-		lightPos.x = cos(currentFrame / 1000 * fast) * radius;
-		lightPos.y = sin(currentFrame / 1000 * fast) * radius;
+		lightPos.x = cos(currentFrame / 1000 * fast)* radius;
+		lightPos.y = sin(currentFrame / 1000 * fast)* radius;
 		lightPos.z = 0.0f;
 		model = glm::mat4();
 		model = glm::translate(model, lightPos);
@@ -355,6 +358,7 @@ void CreateScene::MainLoop() {
 		ModelSun.Draw(LampShader);
 		glBindVertexArray(0);
 		
+
 		//SDL_Delay(200);
 		
 		SDL_GL_SwapWindow(window);
