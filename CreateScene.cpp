@@ -124,21 +124,6 @@ glm::vec3 pointLightPositions[] = {
         glm::vec3( 0.15f,  0.125f, 0.7f)
     };
 
-glm::vec3 ColorLampNight[] = {
-		glm::vec3(1.0f, 0.6f, 0.0f),
-		glm::vec3(1.0f, 0.0f, 0.0f),
-		glm::vec3(1.0f, 0.0, 1.0),
-		glm::vec3(0.2f, 0.2f, 1.0f)
-};
-
-glm::vec3 ColorLampDay[] = {
-		glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(0.0f, 0.0, 0.0),
-		glm::vec3(0.0f, 0.0f, 0.0f)
-};
-
-
 glm::vec3 cubePositions[] = {
 		glm::vec3(0.0f,  0.0f,  0.0f),
 		glm::vec3(2.0f,  5.0f, -15.0f),
@@ -167,6 +152,7 @@ void CreateScene::MainLoop() {
 	int keys[1024] = { 0 };
 
 	Model ModelSun("sun/sun.obj");
+	Model ModelMoon("moon/moon.obj");
 	Model ModelHouse("house/house.obj");
 	Model ModelClouds("clouds/clouds.obj");
 	Model ModelLamp("lamp/lamp.obj");
@@ -179,7 +165,8 @@ void CreateScene::MainLoop() {
 
 	float temp = 0.0f;
 	float fast = 0.5f;
-	float radius = 2.0f;
+	float radiusSun = 1.75f;
+	float radiusMoon = 1.5f;
 	float val = 0.0f;
 	float val1 = 0.0f;
 
@@ -187,6 +174,11 @@ void CreateScene::MainLoop() {
 	glm::vec3 two = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 three = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 four = glm::vec3(0.0f, 0.0f, 0.0f);
+
+	float opacityMoon = 0.0f;
+	float opacitySun = 0.0f;
+
+	float step = 0.0f;
 
 	while (running) {
 		SDL_Event event;
@@ -281,13 +273,7 @@ void CreateScene::MainLoop() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		ourShader.Use();
-		/*
-		glm::vec3 lightColor;		
-		lightColor.x = 1.0f;
-		lightColor.y = 1.0f;
-		lightColor.z = 1.0f;
-		*/
-
+		
 		glm::vec3 lightColor;
 		temp = sin(currentFrame / 1000 * fast);
 		val = abs(cos(currentFrame / 1000 * fast));
@@ -296,6 +282,9 @@ void CreateScene::MainLoop() {
 
 		if (temp > 0.0f) {
 			lightColor.x = 1.0f;
+			lightColor.y = temp;
+			lightColor.z = temp;
+			/*
 			if (temp < val1) {
 				lightColor.y = val1;
 				lightColor.z = val1;
@@ -304,17 +293,18 @@ void CreateScene::MainLoop() {
 				lightColor.y = temp;
 				lightColor.z = temp;
 			}
+			*/
 		}
 		else {
 			
+			//lightColor.x = val;
+			//lightColor.y = val1;
+			//lightColor.z = val1;
+			
 			lightColor.x = val;
-			lightColor.y = val1;
-			lightColor.z = val1;
-			/*
-			lightColor.x = 0.1f;
-			lightColor.y = 0.1f;
-			lightColor.z = 0.1f;
-			*/
+			lightColor.y = 0.0f;
+			lightColor.z = 0.0f;
+			
 		}
 				
 		glm::vec3 diffuseColor = lightColor * glm::vec3(0.8f);
@@ -324,30 +314,26 @@ void CreateScene::MainLoop() {
 		ourShader.setFloat("material.shininess", 8.0f);
 		ourShader.setFloat("opacity", 1.0f);
 
+		ourShader.setVec3("dirLight.direction", 3.0f, -3.0f, 0.0f);
+		ourShader.setVec3("dirLight.ambient", lightColor.x * 0.1f, lightColor.y * 0.1f, lightColor.z * 0.1f);
+		ourShader.setVec3("dirLight.diffuse", lightColor.x, lightColor.y, lightColor.z);
+		ourShader.setVec3("dirLight.specular", lightColor.x, lightColor.y, lightColor.z);
 
 		if (temp > 0.0f) {
 			//день
-			ourShader.setVec3("dirLight.direction", 3.0f, -3.0f, 0.0f);
-			ourShader.setVec3("dirLight.ambient", lightColor.x * 0.1f, lightColor.y * 0.1f, lightColor.z * 0.1f);
-			ourShader.setVec3("dirLight.diffuse", lightColor.x, lightColor.y, lightColor.z);
-			ourShader.setVec3("dirLight.specular", lightColor.x, lightColor.y, lightColor.z);
-
-			one = glm::vec3(0.0f, 0.0f, 0.0f);
-			two = glm::vec3(0.0f, 0.0f, 0.0f);
-			three = glm::vec3(0.0f, 0.0f, 0.0f);
-			four = glm::vec3(0.0f, 0.0f, 0.0f);
+			step = abs(temp);		
+			one = glm::vec3(1.0f, step, step);
+			two =	glm::vec3(1.0f, step, step);
+			three = glm::vec3(1.0f, step, 1.0f);
+			four =	glm::vec3(step, step, 1.0f);
 		}
 		else {
 			//ночь
-			ourShader.setVec3("dirLight.direction", 3.0f, -3.0f, 0.0f);
-			ourShader.setVec3("dirLight.ambient", 0.0f, 0.0f, 0.0f);
-			ourShader.setVec3("dirLight.diffuse", 0.0f, 0.0f, 0.0f);
-			ourShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
-
-			one = glm::vec3(1.0f, 0.6f, 0.0f);
-			two = glm::vec3(1.0f, 0.0f, 0.0f);
-			three = glm::vec3(1.0f, 0.0, 1.0);
-			four = glm::vec3(0.2f, 0.2f, 1.0f);
+			step = 0.0f;
+			one =	glm::vec3(1.0f, step, step);
+			two =	glm::vec3(1.0f, step, step);
+			three = glm::vec3(1.0f, step, 1.0);
+			four =	glm::vec3(step, step, 1.0f);
 		}
 
 
@@ -357,40 +343,40 @@ void CreateScene::MainLoop() {
 		ourShader.setVec3("pointLights[0].diffuse", one.x, one.y, one.z);
 		ourShader.setVec3("pointLights[0].specular", one.x, one.y, one.z);
 		ourShader.setFloat("pointLights[0].constant", 1.0f);
-		ourShader.setFloat("pointLights[0].linear", 0.14);
-		ourShader.setFloat("pointLights[0].quadratic", 0.07);
+		ourShader.setFloat("pointLights[0].linear", 0.7);
+		ourShader.setFloat("pointLights[0].quadratic", 1.8);
 		// point light 2
 		ourShader.setVec3("pointLights[1].position", two.x, two.y, two.z);
 		ourShader.setVec3("pointLights[1].ambient", two.x * 0.1f, two.y * 0.1f, two.z * 0.1f);
 		ourShader.setVec3("pointLights[1].diffuse", two.x, two.y, two.z);
 		ourShader.setVec3("pointLights[1].specular", two.x, two.y, two.z);
 		ourShader.setFloat("pointLights[1].constant", 1.0f);
-		ourShader.setFloat("pointLights[1].linear", 0.14);
-		ourShader.setFloat("pointLights[1].quadratic", 0.07);
+		ourShader.setFloat("pointLights[1].linear", 0.7);
+		ourShader.setFloat("pointLights[1].quadratic", 1.8);
 		// point light 3
 		ourShader.setVec3("pointLights[2].position", three.x, three.y, three.z);
 		ourShader.setVec3("pointLights[2].ambient", three.x * 0.1f, three.y * 0.1f, three.z * 0.1f);
 		ourShader.setVec3("pointLights[2].diffuse", three.x, three.y, three.z);
 		ourShader.setVec3("pointLights[2].specular",three.x, three.y, three.z);
 		ourShader.setFloat("pointLights[2].constant", 1.0f);
-		ourShader.setFloat("pointLights[2].linear", 0.14);
-		ourShader.setFloat("pointLights[2].quadratic", 0.07);
+		ourShader.setFloat("pointLights[2].linear", 0.7);
+		ourShader.setFloat("pointLights[2].quadratic", 1.8);
 		// point light 4
 		ourShader.setVec3("pointLights[3].position", four.x, four.y, four.z);
 		ourShader.setVec3("pointLights[3].ambient", four.x * 0.1f, four.y * 0.1f, four.z * 0.1f);
 		ourShader.setVec3("pointLights[3].diffuse",  four.x, four.y, four.z);
 		ourShader.setVec3("pointLights[3].specular", four.x, four.y, four.z);
 		ourShader.setFloat("pointLights[3].constant", 1.0f);
-		ourShader.setFloat("pointLights[3].linear", 0.14);
-		ourShader.setFloat("pointLights[3].quadratic", 0.07);
+		ourShader.setFloat("pointLights[3].linear", 0.7);
+		ourShader.setFloat("pointLights[3].quadratic", 1.8);
 		// point light 5		
-		ourShader.setVec3("pointLights[4].position", lightPos.x, lightPos.y, lightPos.z);
+		ourShader.setVec3("pointLights[4].position", lightPosSun.x, lightPosSun.y, lightPosSun.z);
 		ourShader.setVec3("pointLights[4].ambient", ambientColor);
 		ourShader.setVec3("pointLights[4].diffuse", diffuseColor);
 		ourShader.setVec3("pointLights[4].specular", 1.0f, 1.0f, 1.0f);
 		ourShader.setFloat("pointLights[4].constant", 1.0f);
-		ourShader.setFloat("pointLights[4].linear", 0.045);
-		ourShader.setFloat("pointLights[4].quadratic", 0.0075);
+		ourShader.setFloat("pointLights[4].linear", 0.35);
+		ourShader.setFloat("pointLights[4].quadratic", 0.44);
 		
 		// spotLight
 		/*
@@ -431,46 +417,69 @@ void CreateScene::MainLoop() {
 		LampShader.setMat4("projection", projection);
 		LampShader.setMat4("view", view);
 
-		// we now draw as many light bulbs as we have point lights.
 		glBindVertexArray(vaoLeght);
 		for (unsigned int i = 0; i < 4; i++){
+			
+			switch (i) {
+			case 0:
+				LampShader.setVec4("ourColor", one.x, one.y, one.z, 1.0f);
+				break;
+			case 1:
+				LampShader.setVec4("ourColor", two.x, two.y, two.z, 1.0f);
+				break;
+			case 2:
+				LampShader.setVec4("ourColor", three.x, three.y, three.z, 1.0f);
+				break;
+			case 3:
+				LampShader.setVec4("ourColor", four.x, four.y, four.z, 1.0f);
+				break;
+			default:
+				break;
+			}
+			
 			if (temp < 0.0f) {
-				switch (i) {
-				case 0:
-					LampShader.setVec4("ourColor", one.x, one.y, one.z, 1.0f);
-					break;
-				case 1:
-					LampShader.setVec4("ourColor", two.x, two.y, two.z, 1.0f);
-					break;
-				case 2:
-					LampShader.setVec4("ourColor", three.x, three.y, three.z, 1.0f);
-					break;
-				case 3:
-					LampShader.setVec4("ourColor", four.x, four.y, four.z, 1.0f);
-					break;
-				default:
-					break;
-				}
+				//ночь
+				opacityMoon = abs(temp);
+				opacitySun = 0.0f;
 			}
 			else {
+				//день
 				LampShader.setVec4("ourColor", 1.0f, 1.0f, 1.0f, 1.0f);
+				opacityMoon = 0.0f;
+				opacitySun = temp;
 			}
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, pointLightPositions[i]);
-			model = glm::scale(model, glm::vec3(0.1f)); // Make it a smaller cube
+			model = glm::scale(model, glm::vec3(0.1f)); 
 			LampShader.setMat4("model", model);
 			ModelLamp.Draw(LampShader);
 		}
-		LampShader.setVec4("ourColor", lightColor.x, lightColor.y, lightColor.z, 0.8f);
+
+		if (opacitySun < 0.2f)
+			opacitySun = 0.2f;
+
+		LampShader.setVec4("ourColor", lightColor.x, lightColor.y, lightColor.z, opacitySun);
 		model = glm::mat4(1.0f);
-		lightPos.x = cos(currentFrame / 1000 * 0.5f) * 1.75f;
-		lightPos.y = sin(currentFrame / 1000 * 0.5f) * 1.75f;
-		lightPos.z = 0.0f;
-		model = glm::translate(model, lightPos);
+		lightPosSun.x = cos(currentFrame / 1000 * fast) * radiusSun;
+		lightPosSun.y = sin(currentFrame / 1000 * fast) * radiusSun;
+		lightPosSun.z = 0.0f;
+		model = glm::translate(model, lightPosSun);
 		model = glm::scale(model, glm::vec3(0.2f)); 
 		LampShader.setMat4("model", model);
 		ModelSun.Draw(LampShader);
 
+		if (opacityMoon < 0.2f)
+			opacityMoon = 0.2f;
+
+		LampShader.setVec4("ourColor",1.0f, 1.0f, 1.0f, opacityMoon);
+		model = glm::mat4(1.0f);
+		lightPosMoon.x = cos(currentFrame / 1000 * fast+3.14f) * radiusMoon;
+		lightPosMoon.y = sin(currentFrame / 1000 * fast+3.14f) * radiusMoon;
+		lightPosMoon.z = 0.0f;
+		model = glm::translate(model, lightPosMoon);
+		model = glm::scale(model, glm::vec3(0.1f));
+		LampShader.setMat4("model", model);
+		ModelMoon.Draw(LampShader);
 		
 
 		//SDL_Delay(200);
