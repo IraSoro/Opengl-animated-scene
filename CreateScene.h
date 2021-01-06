@@ -34,10 +34,11 @@ private:
 	const GLchar* fragmentPath = "fragment.f";
 	const GLchar* vertexLamp = "lampVertex.v";
 	const GLchar* fragmentLamp = "lampFragment.f";
-	const GLchar* vertexModel = "loadingModelVert.v";
-	const GLchar* fragmentModel = "loadingModelFrag.f";
+	const GLchar* vertexSkyBox = "vertexSkyBox.v";
+	const GLchar* fragmentSkyBox = "fragmentSkyBox.f";
 	GLuint vao, vaoLeght, vbo, ebo;
-	
+	GLuint skyboxVAO, skyboxVBO;
+
 	GLuint texture1;
 	GLuint texture2;
 	
@@ -71,11 +72,16 @@ public:
 	void WorkAttr();
 	void WorkTexture(GLuint &texture, const GLchar* name);
 	unsigned int loadTexture(char const* path);
+	
+	void InitSkyBox();
+	
 
 	void RotateCamera();
 	void InitLight();
 
 	void Close();
+
+	unsigned int loadCubemap(vector<std::string> faces);
 };
 
 #endif
