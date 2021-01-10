@@ -7,7 +7,6 @@ CreateScene::CreateScene() :
 		window(nullptr),
 		vao(0),
 		vbo(0),
-		ebo(0),
 		texture1(0),
 		texture2(0),
 		glcontext(0){
@@ -19,7 +18,7 @@ CreateScene::~CreateScene() {
 }
 
 void CreateScene::Start() {
-	if (Init() && InitGLEW()) {
+	if (InitSDL() && InitGLEW()) {
 
 		MainLoop();
 
@@ -27,98 +26,8 @@ void CreateScene::Start() {
 	}
 	return;
 }
-/*
-float vertices[] = {
-	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-	-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-};
-*/
-
-float vertices1[] = {
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
-		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
-
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
-
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
-		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
-		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
-
-		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
-
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  1.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
-
-		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f,
-		 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  1.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f
-};
-
-float skyboxVertices[] = {
-	// positions          
+float skyboxVertices[] = {       
 	-3.0f,  3.0f, -3.0f,
 	-3.0f, -3.0f, -3.0f,
 	 3.0f, -3.0f, -3.0f,
@@ -182,35 +91,18 @@ glm::vec3 cubePositions[] = {
 		glm::vec3(-1.3f,  1.0f, -1.5f)
 };
 
-const GLchar* negz = "4.jpg";
-const GLchar* negx = "4.jpg";
-const GLchar* negy = "4.jpg";
-const GLchar* posx = "4.jpg";
-const GLchar* posy = "4.jpg";
-const GLchar* posz = "4.jpg";
 
-vector<std::string> faces{
-	posx,
-	negx,
-	posy,
-	negy,
-	posz,
-	negz
-};
+
 
 
 void CreateScene::MainLoop() {
 	Shader ourShader(vertexPath, fragmentPath);
 	Shader LampShader(vertexLamp, fragmentLamp);
-	Shader CloudShader(vertexLamp, fragmentLamp);
 	Shader SkyBoxShader(vertexSkyBox, fragmentSkyBox);
 
 	WorkAttr();
 	InitSkyBox();
-	
-	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
 	int keys[1024] = { 0 };
 
 	Model ModelSun("sun/sun.obj");
@@ -226,21 +118,17 @@ void CreateScene::MainLoop() {
 	GLfloat cameraSpeed;
 
 	float temp = 0.0f;
-	float fast = 0.5f;
+	float fast = 0.25f;
 	float radiusSun = 1.75f;
 	float radiusMoon = 1.5f;
 	float val = 0.0f;
-	float val1 = 0.0f;
-
-	glm::vec3 one = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::vec3 two = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::vec3 three = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::vec3 four = glm::vec3(0.0f, 0.0f, 0.0f);
-
+	
 	float opacityMoon = 0.0f;
 	float opacitySun = 0.0f;
 
 	float step = 0.0f;
+
+	float limitTransparency = 0.2f;
 
 	unsigned int cubemapTexture = loadCubemap(faces);
 
@@ -262,23 +150,16 @@ void CreateScene::MainLoop() {
 			case SDL_KEYDOWN:
 				keys[event.key.keysym.sym] = 1;
 				if (keys[SDLK_ESCAPE] || (keys[SDLK_LCTRL] && keys[SDLK_q])) {
-					//cout << "Q" << endl;
 					running = false;
 				} else if (keys[SDLK_w]) {
-					//cout << "W" << endl;
 					cameraPos += cameraSpeed * cameraFront;
 				} else if (keys[SDLK_s]) {
-					//cout << "S" << endl;
 					cameraPos -= cameraSpeed * cameraFront;
 				} else if (keys[SDLK_a]) {
-					//cout << "A" << endl;
 					cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 				} else if (keys[SDLK_d]) {
-					//cout << "D" << endl;
 					cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 				}else if (keys[SDLK_LEFT]) {
-					//cout << "LEFT" << endl;
-
 					Yaw -= rotateSpeed;
 
 					glm::vec3 newFront;
@@ -290,8 +171,6 @@ void CreateScene::MainLoop() {
 					cameraRight = glm::normalize(glm::cross(cameraFront, glm::vec3(0.0f, 0.1f, 0.0f)));
 					cameraUp = glm::normalize(glm::cross(cameraRight, cameraFront));
 				} else if (keys[SDLK_RIGHT]) {
-					//cout << "RIGHT" << endl;
-					
 					Yaw += rotateSpeed;
 
 					glm::vec3 newFront;
@@ -303,8 +182,6 @@ void CreateScene::MainLoop() {
 					cameraRight = glm::normalize(glm::cross(cameraFront, glm::vec3(0.0f, 0.1f, 0.0f)));
 					cameraUp = glm::normalize(glm::cross(cameraRight, cameraFront));
 				} else if (keys[SDLK_UP]) {
-					//cout << "UP" << endl;
-
 					Pitch += rotateSpeed;
 
 					glm::vec3 newFront;
@@ -316,8 +193,6 @@ void CreateScene::MainLoop() {
 					cameraRight = glm::normalize(glm::cross(cameraFront, glm::vec3(0.0f, 0.1f, 0.0f)));
 					cameraUp = glm::normalize(glm::cross(cameraRight, cameraFront));
 				} else if (keys[SDLK_DOWN]) {
-					//cout << "DOWN" << endl;
-					
 					Pitch -= rotateSpeed;
 
 					glm::vec3 newFront;
@@ -344,34 +219,16 @@ void CreateScene::MainLoop() {
 		glm::vec3 lightColor;
 		temp = sin(currentFrame / 1000 * fast);
 		val = abs(cos(currentFrame / 1000 * fast));
-		val1 = val / 3;
-		float val2 = val + 0.1f;
 
 		if (temp > 0.0f) {
 			lightColor.x = 1.0f;
 			lightColor.y = temp;
-			lightColor.z = temp;
-			
-			//if (temp < val1) {
-			//	lightColor.y = val1;
-			//	lightColor.z = val1;
-			//}
-			//else {
-			//	lightColor.y = temp;
-			//	lightColor.z = temp;
-			//}
-			
+			lightColor.z = temp;			
 		}
 		else {
-			
-			//lightColor.x = val;
-			//lightColor.y = val1;
-			//lightColor.z = val1;
-			
 			lightColor.x = val;
 			lightColor.y = 0.0f;
-			lightColor.z = 0.0f;
-			
+			lightColor.z = 0.0f;			
 		}
 			   
 
@@ -390,50 +247,50 @@ void CreateScene::MainLoop() {
 		if (temp > 0.0f) {
 			//день
 			step = abs(temp);		
-			one = glm::vec3(1.0f, step, step);
-			two =	glm::vec3(1.0f, step, step);
-			three = glm::vec3(1.0f, step, 1.0f);
-			four =	glm::vec3(step, step, 1.0f);
+			oneLampColor = glm::vec3(1.0f, step, step);
+			twoLampColor =	glm::vec3(1.0f, step, step);
+			threeLampColor = glm::vec3(1.0f, step, 1.0f);
+			fourLampColor =	glm::vec3(step, step, 1.0f);
 		}
 		else {
 			//ночь
 			step = 0.0f;
-			one =	glm::vec3(1.0f, step, step);
-			two =	glm::vec3(1.0f, step, step);
-			three = glm::vec3(1.0f, step, 1.0);
-			four =	glm::vec3(step, step, 1.0f);
+			oneLampColor =	glm::vec3(1.0f, step, step);
+			twoLampColor =	glm::vec3(1.0f, step, step);
+			threeLampColor = glm::vec3(1.0f, step, 1.0);
+			fourLampColor =	glm::vec3(step, step, 1.0f);
 		}
 
 
 		// point light 1
-		ourShader.setVec3("pointLights[0].position", one.x, one.y, one.z);
-		ourShader.setVec3("pointLights[0].ambient", one.x *0.1f, one.y *0.1f, one.z*0.1f);
-		ourShader.setVec3("pointLights[0].diffuse", one.x, one.y, one.z);
-		ourShader.setVec3("pointLights[0].specular", one.x, one.y, one.z);
+		ourShader.setVec3("pointLights[0].position", oneLampColor.x, oneLampColor.y, oneLampColor.z);
+		ourShader.setVec3("pointLights[0].ambient", oneLampColor.x *0.1f, oneLampColor.y *0.1f, oneLampColor.z*0.1f);
+		ourShader.setVec3("pointLights[0].diffuse", oneLampColor.x, oneLampColor.y, oneLampColor.z);
+		ourShader.setVec3("pointLights[0].specular", oneLampColor.x, oneLampColor.y, oneLampColor.z);
 		ourShader.setFloat("pointLights[0].constant", 1.0f);
 		ourShader.setFloat("pointLights[0].linear", 0.7);
 		ourShader.setFloat("pointLights[0].quadratic", 1.8);
 		// point light 2
-		ourShader.setVec3("pointLights[1].position", two.x, two.y, two.z);
-		ourShader.setVec3("pointLights[1].ambient", two.x * 0.1f, two.y * 0.1f, two.z * 0.1f);
-		ourShader.setVec3("pointLights[1].diffuse", two.x, two.y, two.z);
-		ourShader.setVec3("pointLights[1].specular", two.x, two.y, two.z);
+		ourShader.setVec3("pointLights[1].position", twoLampColor.x, twoLampColor.y, twoLampColor.z);
+		ourShader.setVec3("pointLights[1].ambient", twoLampColor.x * 0.1f, twoLampColor.y * 0.1f, twoLampColor.z * 0.1f);
+		ourShader.setVec3("pointLights[1].diffuse", twoLampColor.x, twoLampColor.y, twoLampColor.z);
+		ourShader.setVec3("pointLights[1].specular", twoLampColor.x, twoLampColor.y, twoLampColor.z);
 		ourShader.setFloat("pointLights[1].constant", 1.0f);
 		ourShader.setFloat("pointLights[1].linear", 0.7);
 		ourShader.setFloat("pointLights[1].quadratic", 1.8);
 		// point light 3
-		ourShader.setVec3("pointLights[2].position", three.x, three.y, three.z);
-		ourShader.setVec3("pointLights[2].ambient", three.x * 0.1f, three.y * 0.1f, three.z * 0.1f);
-		ourShader.setVec3("pointLights[2].diffuse", three.x, three.y, three.z);
-		ourShader.setVec3("pointLights[2].specular",three.x, three.y, three.z);
+		ourShader.setVec3("pointLights[2].position", threeLampColor.x, threeLampColor.y, threeLampColor.z);
+		ourShader.setVec3("pointLights[2].ambient", threeLampColor.x * 0.1f, threeLampColor.y * 0.1f, threeLampColor.z * 0.1f);
+		ourShader.setVec3("pointLights[2].diffuse", threeLampColor.x, threeLampColor.y, threeLampColor.z);
+		ourShader.setVec3("pointLights[2].specular", threeLampColor.x, threeLampColor.y, threeLampColor.z);
 		ourShader.setFloat("pointLights[2].constant", 1.0f);
 		ourShader.setFloat("pointLights[2].linear", 0.7);
 		ourShader.setFloat("pointLights[2].quadratic", 1.8);
 		// point light 4
-		ourShader.setVec3("pointLights[3].position", four.x, four.y, four.z);
-		ourShader.setVec3("pointLights[3].ambient", four.x * 0.1f, four.y * 0.1f, four.z * 0.1f);
-		ourShader.setVec3("pointLights[3].diffuse",  four.x, four.y, four.z);
-		ourShader.setVec3("pointLights[3].specular", four.x, four.y, four.z);
+		ourShader.setVec3("pointLights[3].position", fourLampColor.x, fourLampColor.y, fourLampColor.z);
+		ourShader.setVec3("pointLights[3].ambient", fourLampColor.x * 0.1f, fourLampColor.y * 0.1f, fourLampColor.z * 0.1f);
+		ourShader.setVec3("pointLights[3].diffuse", fourLampColor.x, fourLampColor.y, fourLampColor.z);
+		ourShader.setVec3("pointLights[3].specular", fourLampColor.x, fourLampColor.y, fourLampColor.z);
 		ourShader.setFloat("pointLights[3].constant", 1.0f);
 		ourShader.setFloat("pointLights[3].linear", 0.7);
 		ourShader.setFloat("pointLights[3].quadratic", 1.8);
@@ -471,21 +328,21 @@ void CreateScene::MainLoop() {
 		LampShader.setMat4("projection", projection);
 		LampShader.setMat4("view", view);
 
-		glBindVertexArray(vaoLeght);
+		glBindVertexArray(vaoLight);
 		for (unsigned int i = 0; i < 4; i++){
 			
 			switch (i) {
 			case 0:
-				LampShader.setVec4("ourColor", one.x, one.y, one.z, 1.0f);
+				LampShader.setVec4("ourColor", oneLampColor.x, oneLampColor.y, oneLampColor.z, 1.0f);
 				break;
 			case 1:
-				LampShader.setVec4("ourColor", two.x, two.y, two.z, 1.0f);
+				LampShader.setVec4("ourColor", twoLampColor.x, twoLampColor.y, twoLampColor.z, 1.0f);
 				break;
 			case 2:
-				LampShader.setVec4("ourColor", three.x, three.y, three.z, 1.0f);
+				LampShader.setVec4("ourColor", threeLampColor.x, threeLampColor.y, threeLampColor.z, 1.0f);
 				break;
 			case 3:
-				LampShader.setVec4("ourColor", four.x, four.y, four.z, 1.0f);
+				LampShader.setVec4("ourColor", fourLampColor.x, fourLampColor.y, fourLampColor.z, 1.0f);
 				break;
 			default:
 				break;
@@ -509,8 +366,8 @@ void CreateScene::MainLoop() {
 			ModelLamp.Draw(LampShader);
 		}
 
-		if (opacitySun < 0.2f)
-			opacitySun = 0.2f;
+		if (opacitySun < limitTransparency)
+			opacitySun = limitTransparency;
 
 		LampShader.setVec4("ourColor", lightColor.x, lightColor.y, lightColor.z, opacitySun);
 		model = glm::mat4(1.0f);
@@ -518,12 +375,12 @@ void CreateScene::MainLoop() {
 		lightPosSun.y = sin(currentFrame / 1000 * fast) * radiusSun;
 		lightPosSun.z = 0.0f;
 		model = glm::translate(model, lightPosSun);
-		model = glm::scale(model, glm::vec3(0.2f)); 
+		model = glm::scale(model, glm::vec3(0.2f));
 		LampShader.setMat4("model", model);
 		ModelSun.Draw(LampShader);
 
-		if (opacityMoon < 0.2f)
-			opacityMoon = 0.2f;
+		if (opacityMoon < limitTransparency)
+			opacityMoon = limitTransparency;
 
 		LampShader.setVec4("ourColor",1.0f, 1.0f, 1.0f, opacityMoon);
 		model = glm::mat4(1.0f);
@@ -559,7 +416,7 @@ void CreateScene::MainLoop() {
 
 }
 
-bool CreateScene::Init() {
+bool CreateScene::InitSDL() {
 
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 		cout << "Unable to init SDL, error: " << SDL_GetError() << endl;
@@ -572,7 +429,7 @@ bool CreateScene::Init() {
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
 
 
-	window = SDL_CreateWindow("Ira_Soro", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
+	window = SDL_CreateWindow("Irina_Sorokina_I582", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
 
 	glcontext = SDL_GL_CreateContext(window);
 
@@ -624,17 +481,6 @@ bool CreateScene::InitVBO() {
 	return true;
 }
 
-bool CreateScene::InitEBO() {
-	glGenBuffers(1, &ebo);
-	if (vbo == 1) printf("EBO = %u\n", vbo);
-	else {
-		cout << "glGenBuffers Error: EBO = ";
-		printf("%u\n", vbo);
-		return false;
-	}
-
-	return true;
-}
 
 void CreateScene::InitSkyBox() {
 	glGenVertexArrays(1, &skyboxVAO);
@@ -653,7 +499,6 @@ void CreateScene::WorkAttr() {
 	glBindVertexArray(vao);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices1), vertices1, GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
 	glEnableVertexAttribArray(0);
@@ -664,93 +509,16 @@ void CreateScene::WorkAttr() {
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(2);
 
-	glBindVertexArray(0); // Unbind VAO
+	glBindVertexArray(0); 
 	return;
 }
 
-void CreateScene::InitLight() {
-	
-	glGenVertexArrays(1, &vaoLeght);
-	glBindVertexArray(vaoLeght);
-	
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
-	glEnableVertexAttribArray(0);
-	glBindVertexArray(0);
-}
-
-void CreateScene::WorkTexture(GLuint &texture, const GLchar* name) {
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture); 
-	// Set our texture parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// Set texture filtering
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// Load, create texture and generate mipmaps
-	int width, height;
-	unsigned char* image = SOIL_load_image(name, &width, &height, 0, SOIL_LOAD_RGB);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
-	glGenerateMipmap(GL_TEXTURE_2D);
-	SOIL_free_image_data(image);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	return;
-}
-
-unsigned int CreateScene::loadTexture(char const* path){
-	unsigned int textureID;
-	glGenTextures(1, &textureID);
-
-	int width, height, nrComponents;
-	unsigned char* data = stbi_load(path, &width, &height, &nrComponents, 0);
-	if (data)
-	{
-		GLenum format;
-		if (nrComponents == 1)
-			format = GL_RED;
-		else if (nrComponents == 3)
-			format = GL_RGB;
-		else if (nrComponents == 4)
-			format = GL_RGBA;
-
-		glBindTexture(GL_TEXTURE_2D, textureID);
-		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		stbi_image_free(data);
-	}
-	else
-	{
-		cout << "Texture failed to load at path: " << path << endl;
-		stbi_image_free(data);
-	}
-
-	return textureID;
-}
-
-void CreateScene::RotateCamera() {
-	glm::vec3 newFront;
-	newFront.x = cos(glm::radians(Pitch)) * cos(glm::radians(Yaw));
-	newFront.y = sin(glm::radians(Pitch));
-	newFront.z = cos(glm::radians(Pitch)) * sin(glm::radians(Yaw));
-	cameraFront = glm::normalize(newFront);
-
-	cameraRight = glm::normalize(glm::cross(cameraFront, glm::vec3(0.0f, 0.1f, 0.0f)));
-	cameraUp = glm::normalize(glm::cross(cameraRight, cameraFront));
-}
 
 void CreateScene::Close() {
 	glDeleteVertexArrays(1, &vao);
 	glDeleteBuffers(1, &vbo);
-	glDeleteBuffers(1, &ebo);
+
+	glDeleteVertexArrays(1, &vaoLight);
 
 	glDeleteVertexArrays(1, &skyboxVAO);
 	glDeleteBuffers(1, &skyboxVBO);
@@ -776,7 +544,7 @@ unsigned int CreateScene::loadCubemap(vector<std::string> faces)
 		unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
 		if (data)
 		{
-			GLenum format;
+			GLenum format ;
 			if (nrChannels == 1)
 				format = GL_RED;
 			else if (nrChannels == 3)
@@ -784,7 +552,7 @@ unsigned int CreateScene::loadCubemap(vector<std::string> faces)
 			else if (nrChannels == 4)
 				format = GL_RGBA;
 
-			cout << "yes" << endl;
+			cout << "load side of the cube number: "<<i+1 << endl;
 
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 			stbi_image_free(data);

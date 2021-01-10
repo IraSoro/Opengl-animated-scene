@@ -36,16 +36,16 @@ private:
 	const GLchar* fragmentLamp = "lampFragment.f";
 	const GLchar* vertexSkyBox = "vertexSkyBox.v";
 	const GLchar* fragmentSkyBox = "fragmentSkyBox.f";
-	GLuint vao, vaoLeght, vbo, ebo;
+	GLuint vao, vbo;
+	GLuint vaoLight;
 	GLuint skyboxVAO, skyboxVBO;
 
 	GLuint texture1;
 	GLuint texture2;
-	
+
 	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-	glm::vec3 cameraX = glm::vec3(1.0f, 0.0f, 0.0f);
 	int keys[1024];
 
 	GLfloat deltaTime = 0.0f;
@@ -55,29 +55,33 @@ private:
 	float Pitch = 0.0;
 	const float rotateSpeed = 0.8f;
 	glm::vec3 cameraRight;
+
 	glm::vec3 lightPosSun = glm::vec3(0.0f, 1.0f, 0.0f);
 	glm::vec3 lightPosMoon = glm::vec3(0.0f, -1.0f, 0.0f);
+
+	glm::vec3 oneLampColor = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 twoLampColor = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 threeLampColor = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 fourLampColor = glm::vec3(0.0f, 0.0f, 0.0f);
+
+	const GLchar* pos = "4.jpg";
+	vector <string> faces{ pos, pos, pos, pos, pos, pos };
+
+	
 public:
 	CreateScene();
 	~CreateScene();
 
-	bool Init();
+	bool InitSDL();
 	bool InitGLEW();
 	bool InitVAO();
 	bool InitVBO();
-	bool InitEBO();
 
 	void Start();
 	void MainLoop();
 	void WorkAttr();
-	void WorkTexture(GLuint &texture, const GLchar* name);
-	unsigned int loadTexture(char const* path);
 	
 	void InitSkyBox();
-	
-
-	void RotateCamera();
-	void InitLight();
 
 	void Close();
 
