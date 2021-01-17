@@ -5,10 +5,6 @@ using namespace std;
 
 CreateScene::CreateScene() : 
 		window(nullptr),
-		vao(0),
-		vbo(0),
-		texture1(0),
-		texture2(0),
 		glcontext(0){
 
 }
@@ -91,16 +87,11 @@ glm::vec3 cubePositions[] = {
 		glm::vec3(-1.3f,  1.0f, -1.5f)
 };
 
-
-
-
-
 void CreateScene::MainLoop() {
 	Shader ourShader(vertexPath, fragmentPath);
 	Shader LampShader(vertexLamp, fragmentLamp);
 	Shader SkyBoxShader(vertexSkyBox, fragmentSkyBox);
 
-	WorkAttr();
 	InitSkyBox();
 
 	int keys[1024] = { 0 };
@@ -118,7 +109,7 @@ void CreateScene::MainLoop() {
 	GLfloat cameraSpeed;
 
 	float temp = 0.0f;
-	float fast = 0.25f;
+	const float speedRotationMoonAndSun = 0.25f;
 	float radiusSun = 1.75f;
 	float radiusMoon = 1.5f;
 	float val = 0.0f;
@@ -128,13 +119,14 @@ void CreateScene::MainLoop() {
 
 	float step = 0.0f;
 
-	float limitTransparency = 0.2f;
+	const float limitTransparency = 0.2f;
+	const float opacityClouds = 0.9f;
 
 	unsigned int cubemapTexture = loadCubemap(faces);
 
 	SkyBoxShader.Use();
 	SkyBoxShader.setInt("skybox", 0);
-		
+			
 	while (running) {
 		SDL_Event event;
 		float currentFrame = SDL_GetTicks();
@@ -152,9 +144,9 @@ void CreateScene::MainLoop() {
 				if (keys[SDLK_ESCAPE] || (keys[SDLK_LCTRL] && keys[SDLK_q])) {
 					running = false;
 				} else if (keys[SDLK_w]) {
-					cameraPos += cameraSpeed * cameraFront;
+					cameraPos += cameraFront * cameraSpeed;
 				} else if (keys[SDLK_s]) {
-					cameraPos -= cameraSpeed * cameraFront;
+					cameraPos -= cameraFront * cameraSpeed;
 				} else if (keys[SDLK_a]) {
 					cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 				} else if (keys[SDLK_d]) {
@@ -210,15 +202,14 @@ void CreateScene::MainLoop() {
 				break;
 			}
 		}
-
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		ourShader.Use();
 		
 		glm::vec3 lightColor;
-		temp = sin(currentFrame / 1000 * fast);
-		val = abs(cos(currentFrame / 1000 * fast));
+		temp = sin(currentFrame / 1000 * speedRotationMoonAndSun);
+		val = abs(cos(currentFrame / 1000 * speedRotationMoonAndSun));
 
 		if (temp > 0.0f) {
 			lightColor.x = 1.0f;
@@ -245,7 +236,7 @@ void CreateScene::MainLoop() {
 		ourShader.setVec3("dirLight.specular", lightColor.x, lightColor.y, lightColor.z);
 
 		if (temp > 0.0f) {
-			//день
+			//day
 			step = abs(temp);		
 			oneLampColor = glm::vec3(1.0f, step, step);
 			twoLampColor =	glm::vec3(1.0f, step, step);
@@ -253,7 +244,7 @@ void CreateScene::MainLoop() {
 			fourLampColor =	glm::vec3(step, step, 1.0f);
 		}
 		else {
-			//ночь
+			//night
 			step = 0.0f;
 			oneLampColor =	glm::vec3(1.0f, step, step);
 			twoLampColor =	glm::vec3(1.0f, step, step);
@@ -294,7 +285,7 @@ void CreateScene::MainLoop() {
 		ourShader.setFloat("pointLights[3].constant", 1.0f);
 		ourShader.setFloat("pointLights[3].linear", 0.7);
 		ourShader.setFloat("pointLights[3].quadratic", 1.8);
-		// point light 5		
+		// light 		
 		ourShader.setVec3("pointLights[4].position", lightPosSun.x, lightPosSun.y, lightPosSun.z);
 		ourShader.setVec3("pointLights[4].ambient", ambientColor);
 		ourShader.setVec3("pointLights[4].diffuse", diffuseColor);
@@ -318,13 +309,11 @@ void CreateScene::MainLoop() {
 		ourShader.setMat4("model", model);
 				
 		ModelHouse.Draw(ourShader);
-
-		ourShader.setFloat("opacity", 0.9f);
+		
+		ourShader.setFloat("opacity", opacityClouds);
 		ModelClouds.Draw(ourShader);
 
 		LampShader.Use();
-
-
 		LampShader.setMat4("projection", projection);
 		LampShader.setMat4("view", view);
 
@@ -349,12 +338,12 @@ void CreateScene::MainLoop() {
 			}
 			
 			if (temp < 0.0f) {
-				//ночь
+				//night
 				opacityMoon = abs(temp);
 				opacitySun = 0.0f;
 			}
 			else {
-				//день
+				//day
 				LampShader.setVec4("ourColor", 1.0f, 1.0f, 1.0f, 1.0f);
 				opacityMoon = 0.0f;
 				opacitySun = temp;
@@ -371,8 +360,8 @@ void CreateScene::MainLoop() {
 
 		LampShader.setVec4("ourColor", lightColor.x, lightColor.y, lightColor.z, opacitySun);
 		model = glm::mat4(1.0f);
-		lightPosSun.x = cos(currentFrame / 1000 * fast) * radiusSun;
-		lightPosSun.y = sin(currentFrame / 1000 * fast) * radiusSun;
+		lightPosSun.x = cos(currentFrame / 1000 * speedRotationMoonAndSun) * radiusSun;
+		lightPosSun.y = sin(currentFrame / 1000 * speedRotationMoonAndSun) * radiusSun;
 		lightPosSun.z = 0.0f;
 		model = glm::translate(model, lightPosSun);
 		model = glm::scale(model, glm::vec3(0.2f));
@@ -384,8 +373,8 @@ void CreateScene::MainLoop() {
 
 		LampShader.setVec4("ourColor",1.0f, 1.0f, 1.0f, opacityMoon);
 		model = glm::mat4(1.0f);
-		lightPosMoon.x = cos(currentFrame / 1000 * fast+3.14f) * radiusMoon;
-		lightPosMoon.y = sin(currentFrame / 1000 * fast+3.14f) * radiusMoon;
+		lightPosMoon.x = cos(currentFrame / 1000 * speedRotationMoonAndSun + M_PI) * radiusMoon;
+		lightPosMoon.y = sin(currentFrame / 1000 * speedRotationMoonAndSun + M_PI) * radiusMoon;
 		lightPosMoon.z = 0.0f;
 		model = glm::translate(model, lightPosMoon);
 		model = glm::scale(model, glm::vec3(0.1f));
@@ -409,11 +398,9 @@ void CreateScene::MainLoop() {
 		glBindVertexArray(0);
 		glDepthFunc(GL_LESS);
 
-
-
 		SDL_GL_SwapWindow(window);
 	}
-
+	
 }
 
 bool CreateScene::InitSDL() {
@@ -457,31 +444,6 @@ bool CreateScene::InitGLEW() {
 	return true;
 }
 
-bool CreateScene::InitVAO() {
-	glGenVertexArrays(1, &vao);
-	if (vao == 1) printf("VAO = %u\n", vao);
-	else {
-		cout << "glGenBuffers Error: VAO = ";
-		printf("%u\n", vao);
-		return false;
-	}
-
-	return true;
-}
-
-bool CreateScene::InitVBO() {
-	glGenBuffers(1, &vbo);
-	if (vbo == 1) printf("VBO = %u\n", vbo);
-	else {
-		cout << "glGenBuffers Error: VBO = ";
-		printf("%u\n", vbo);
-		return false;
-	}
-
-	return true;
-}
-
-
 void CreateScene::InitSkyBox() {
 	glGenVertexArrays(1, &skyboxVAO);
 	glGenBuffers(1, &skyboxVBO);
@@ -490,44 +452,6 @@ void CreateScene::InitSkyBox() {
 	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-}
-
-void CreateScene::WorkAttr() {
-	if (!InitVAO() || !InitVBO() )
-		return;
-
-	glBindVertexArray(vao);
-
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
-	glEnableVertexAttribArray(0);
-	
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(1);
-
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-	glEnableVertexAttribArray(2);
-
-	glBindVertexArray(0); 
-	return;
-}
-
-
-void CreateScene::Close() {
-	glDeleteVertexArrays(1, &vao);
-	glDeleteBuffers(1, &vbo);
-
-	glDeleteVertexArrays(1, &vaoLight);
-
-	glDeleteVertexArrays(1, &skyboxVAO);
-	glDeleteBuffers(1, &skyboxVBO);
-
-	printf("%s\n", glGetString(GL_VERSION));
-	SDL_DestroyWindow(window);
-	window = nullptr;
-	SDL_Quit();
-	cout << "Clear finish" << endl;
 }
 
 unsigned int CreateScene::loadCubemap(vector<std::string> faces)
@@ -544,7 +468,7 @@ unsigned int CreateScene::loadCubemap(vector<std::string> faces)
 		unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
 		if (data)
 		{
-			GLenum format ;
+			GLenum format;
 			if (nrChannels == 1)
 				format = GL_RED;
 			else if (nrChannels == 3)
@@ -552,7 +476,7 @@ unsigned int CreateScene::loadCubemap(vector<std::string> faces)
 			else if (nrChannels == 4)
 				format = GL_RGBA;
 
-			cout << "load side of the cube number: "<<i+1 << endl;
+			cout << "load side of the cube number: " << i + 1 << endl;
 
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 			stbi_image_free(data);
@@ -571,3 +495,17 @@ unsigned int CreateScene::loadCubemap(vector<std::string> faces)
 
 	return textureID;
 }
+
+void CreateScene::Close() {
+	glDeleteVertexArrays(1, &vaoLight);
+
+	glDeleteVertexArrays(1, &skyboxVAO);
+	glDeleteBuffers(1, &skyboxVBO);
+
+	printf("%s\n", glGetString(GL_VERSION));
+	SDL_DestroyWindow(window);
+	window = nullptr;
+	SDL_Quit();
+	cout << "Clear finish" << endl;
+}
+

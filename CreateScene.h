@@ -36,25 +36,21 @@ private:
 	const GLchar* fragmentLamp = "lampFragment.f";
 	const GLchar* vertexSkyBox = "vertexSkyBox.v";
 	const GLchar* fragmentSkyBox = "fragmentSkyBox.f";
-	GLuint vao, vbo;
 	GLuint vaoLight;
 	GLuint skyboxVAO, skyboxVBO;
 
-	GLuint texture1;
-	GLuint texture2;
-
-	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 	int keys[1024];
 
 	GLfloat deltaTime = 0.0f;
 	GLfloat lastFrame = 0.0f;
 
+	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+	glm::vec3 cameraRight;
 	float Yaw = -90.0;						
 	float Pitch = 0.0;
 	const float rotateSpeed = 0.8f;
-	glm::vec3 cameraRight;
 
 	glm::vec3 lightPosSun = glm::vec3(0.0f, 1.0f, 0.0f);
 	glm::vec3 lightPosMoon = glm::vec3(0.0f, -1.0f, 0.0f);
@@ -74,18 +70,14 @@ public:
 
 	bool InitSDL();
 	bool InitGLEW();
-	bool InitVAO();
-	bool InitVBO();
 
 	void Start();
 	void MainLoop();
-	void WorkAttr();
 	
 	void InitSkyBox();
+	unsigned int loadCubemap(vector<std::string> faces);
 
 	void Close();
-
-	unsigned int loadCubemap(vector<std::string> faces);
 };
 
 #endif
