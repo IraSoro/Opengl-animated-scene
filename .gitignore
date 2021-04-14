@@ -3,3 +3,16 @@
 *.sln
 *.vcxproj*
 Release/
+Areskutan/
+IceRiver/
+backpack/
+casa/
+clouds/
+house/
+lamp/
+moon/
+sun/
+*.jpg
+*.png
+*.mtl
+*.obj
