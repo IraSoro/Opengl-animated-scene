@@ -28,8 +28,8 @@ private:
 	SDL_Window* window;
 	SDL_GLContext glcontext;
 
-	const int width = 640;
-	const int height = 480;
+	const int width = 800;
+	const int height = 600;
 	const GLchar* vertexPath = "vertex.v";
 	const GLchar* fragmentPath = "fragment.f";
 	const GLchar* vertexLamp = "lampVertex.v";

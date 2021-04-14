@@ -127,13 +127,17 @@ void CreateScene::MainLoop() {
 	SkyBoxShader.Use();
 	SkyBoxShader.setInt("skybox", 0);
 			
+	int ch = 0;
 	while (running) {
 		SDL_Event event;
 		float currentFrame = SDL_GetTicks();
 		deltaTime = (currentFrame - lastFrame) / 100;
 		lastFrame = currentFrame;
 		GLfloat cameraSpeed = rotateSpeed * deltaTime;
-
+		if (currentFrame > 5000 && currentFrame < 6000) {
+			ch++;
+			//cout << "ch = " << ch << endl;
+		}
 		while (SDL_PollEvent(&event)) {			
 			switch (event.type) {
 			case SDL_QUIT:
@@ -400,7 +404,7 @@ void CreateScene::MainLoop() {
 
 		SDL_GL_SwapWindow(window);
 	}
-	
+	//cout << "ch = " << ch << endl;
 }
 
 bool CreateScene::InitSDL() {
